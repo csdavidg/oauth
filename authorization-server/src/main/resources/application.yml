@@ -1,0 +1,10 @@
+oauth:
+  clients:
+    client-1-2020: client1
+    client-2-2021: client2
+
+server:
+  port: 8081
+
+jwt:
+  secret: jwttokensecret

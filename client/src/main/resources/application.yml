@@ -1,0 +1,7 @@
+oauth:
+  client: client-1-2020
+  secret: client1
+  callback: http://localhost:8080/callback
+
+server:
+  port: 8080

@@ -1,0 +1,7 @@
+security:
+  username: "cristian"
+  password: "123456"
+  role: "admin"
+
+server:
+  port: 8082
