@@ -3,6 +3,7 @@ package com.david.oauth.demo.client.authorizationserver.service;
 import com.david.oauth.demo.client.authorizationserver.entity.Client;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClientManagement {
 
@@ -14,6 +15,8 @@ public interface ClientManagement {
 
     void deleteById(Long id);
 
-    Client findByClientId(String clientId);
+    Optional<Client> findByClientId(String clientId);
+
+    public Client validateOauthClient(String clientId, String redirectUri, String responseType) throws IllegalArgumentException;
 
 }

@@ -1,10 +1,11 @@
 package com.david.oauth.demo.client.authorizationserver.controller;
 
-import com.david.oauth.demo.client.authorizationserver.component.JwtTokenGenerator;
-import com.david.oauth.demo.client.authorizationserver.config.ClientConfig;
 import com.david.oauth.demo.client.authorizationserver.entity.Client;
+import com.david.oauth.demo.client.authorizationserver.enums.ResponseTypeEnum;
+import com.david.oauth.demo.client.authorizationserver.service.AuthorizationService;
 import com.david.oauth.demo.client.authorizationserver.service.ClientManagement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,26 +15,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/oauth")
 public class OauthController {
 
-    @Resource
-    private ClientConfig clientConfig;
-
     private ClientManagement clientService;
 
-    private JwtTokenGenerator jwtTokenGenerator;
+    private AuthorizationService authorizationService;
 
     @Autowired
-    public OauthController(ClientManagement clientService, JwtTokenGenerator jwtTokenGenerator) {
+    public OauthController(ClientManagement clientService, AuthorizationService authorizationService) {
         this.clientService = clientService;
-        this.jwtTokenGenerator = jwtTokenGenerator;
+        this.authorizationService = authorizationService;
     }
 
     @GetMapping("health")
@@ -48,27 +44,21 @@ public class OauthController {
                                              @RequestParam("redirect_uri") String redirectUri) {
 
         RedirectView redirect = new RedirectView(redirectUri);
-        Client client = clientService.findByClientId(clientId);
-
-        if (Objects.nonNull(client)) {
-
-            String authorizationCode = jwtTokenGenerator.generateAuthorizationCode();
-            client.setAuthorizationCode(authorizationCode);
-            clientService.save(client);
-
+        try {
+            Client client = clientService.validateOauthClient(clientId, redirectUri, responseType);
             Map<String, String> attributesMap = new HashMap<>();
-            attributesMap.put("code", authorizationCode);
-
+            attributesMap.put(ResponseTypeEnum.CODE.getType(), authorizationService.generateAuthorizationCodeForClient(client, state));
             redirect.setStatusCode(HttpStatus.FOUND);
             redirect.setAttributesMap(attributesMap);
-        } else {
+        } catch (Exception e) {
             redirect.setStatusCode(HttpStatus.BAD_REQUEST);
         }
         return redirect;
     }
 
     @PostMapping("token")
-    public ResponseEntity<String> getToken() {
+    public ResponseEntity<String> getToken(HttpRequest request) {
+        request.getHeaders();
         return null;
     }
 }

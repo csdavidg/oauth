@@ -30,6 +30,12 @@ public class Client {
     @Column(name = "client_secret")
     private String clientSecret;
 
+    @Column(name = "redirect_uri")
+    private String redirectUri;
+
+    @Column(name = "state")
+    private String state;
+
     @Column(name = "authorization_code")
     private String authorizationCode;
 
