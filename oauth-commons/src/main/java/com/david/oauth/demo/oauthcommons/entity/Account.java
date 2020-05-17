@@ -1,4 +1,4 @@
-package com.david.oauth.demo.client.entity;
+package com.david.oauth.demo.oauthcommons.entity;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;

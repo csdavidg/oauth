@@ -1,6 +1,7 @@
 package com.david.oauth.demo.authorizationserver.service;
 
-import com.david.oauth.demo.authorizationserver.entity.Client;
+
+import com.david.oauth.demo.oauthcommons.entity.Client;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

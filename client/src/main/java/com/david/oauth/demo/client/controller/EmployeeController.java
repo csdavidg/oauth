@@ -1,7 +1,7 @@
 package com.david.oauth.demo.client.controller;
 
-import com.david.oauth.demo.client.entity.Employee;
 import com.david.oauth.demo.client.service.EmployeeService;
+import com.david.oauth.demo.oauthcommons.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,17 +1,16 @@
 package com.david.oauth.demo.client.controller;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
 import com.david.oauth.demo.client.config.OauthConfig;
-import com.david.oauth.demo.client.entity.ResponseToken;
 import com.david.oauth.demo.client.service.OauthService;
+import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
+import com.david.oauth.demo.oauthcommons.jwt.JwtTokenGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 
 @Controller
 public class OauthController {
@@ -21,14 +20,18 @@ public class OauthController {
 
     private OauthService oauthService;
 
-    private Long state = UUID.randomUUID().getMostSignificantBits();
+    private JwtTokenGenerator jwtTokenGenerator;
 
-    public OauthController(OauthService oauthService) {
+    private String state;
+
+    public OauthController(OauthService oauthService, JwtTokenGenerator jwtTokenGenerator) {
         this.oauthService = oauthService;
+        this.jwtTokenGenerator = jwtTokenGenerator;
     }
 
     @GetMapping("/")
     public String index(Model model) {
+        state = jwtTokenGenerator.generateState();
         model.addAttribute("date", LocalDate.now());
         model.addAttribute("client", oauthConfig.getClient());
         model.addAttribute("callback", oauthConfig.getCallback());
@@ -37,9 +40,8 @@ public class OauthController {
     }
 
     @GetMapping("/callback")
-    public String callback(@RequestParam String code, Model model) throws Exception {
-        //TODO We also have to validate the state which was sent to the authorization_code endpoint
-        ResponseToken token = oauthService.getToken(code);
+    public String callback(@RequestParam String code, @RequestParam String state, Model model) throws Exception {
+        ResponseToken token = oauthService.getToken(code, this.state, state);
         model.addAttribute("code", token);
         return "callback";
     }

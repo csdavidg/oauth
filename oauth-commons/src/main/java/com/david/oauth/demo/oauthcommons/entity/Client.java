@@ -1,4 +1,4 @@
-package com.david.oauth.demo.authorizationserver.entity;
+package com.david.oauth.demo.oauthcommons.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.david.oauth.demo.client.service;
 
-import com.david.oauth.demo.client.entity.Employee;
+import com.david.oauth.demo.oauthcommons.entity.Employee;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

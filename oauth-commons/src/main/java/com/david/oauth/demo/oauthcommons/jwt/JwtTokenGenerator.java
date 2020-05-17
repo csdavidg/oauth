@@ -1,24 +1,21 @@
-package com.david.oauth.demo.authorizationserver.component;
+package com.david.oauth.demo.oauthcommons.jwt;
 
-import com.david.oauth.demo.authorizationserver.entity.Client;
+import com.david.oauth.demo.oauthcommons.entity.Client;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
 
 import java.util.Date;
 import java.util.Random;
 
-@Component
+@AllArgsConstructor
 public class JwtTokenGenerator {
 
     private static final long JWT_EXPIRATION = 10 * 60 * 60;
 
-    @Value("${jwt.secret}")
     private String jwtKey;
 
-
-    public String generateAuthorizationCode() {
+    private String generateRandomString() {
         int leftLimit = 48;
         int rightLimit = 122;
         int targetStringLength = 10;
@@ -37,6 +34,14 @@ public class JwtTokenGenerator {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION * 1000))
                 .signWith(SignatureAlgorithm.HS512, jwtKey).compact();
+    }
+
+    public String generateAuthorizationCode() {
+        return this.generateRandomString().concat("ac");
+    }
+
+    public String generateState() {
+        return this.generateRandomString().concat("st");
     }
 
 

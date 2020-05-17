@@ -1,10 +1,10 @@
 package com.david.oauth.demo.client.service;
 
+import com.david.oauth.demo.authorizationserver.enums.GrantTypeEnum;
 import com.david.oauth.demo.client.config.OauthConfig;
-import com.david.oauth.demo.client.entity.ResponseToken;
+import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,30 +26,31 @@ public class OauthService {
     @Resource
     private OauthConfig oauthConfig;
 
-    Logger logger = LoggerFactory.getLogger(OauthService.class);
-
-    public ResponseToken getToken(String code) {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBasicAuth(oauthConfig.getClient(), oauthConfig.getSecret());
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
-        body.add("grant_type", "authorization_code");
-        body.add("code", code);
-        body.add("redirect_uri", oauthConfig.getCallback());
-
+    public ResponseToken getToken(String code, String originalState, String state) {
         try {
+
+            if (!originalState.equals(state)) {
+                throw new IllegalArgumentException();
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.setBasicAuth(oauthConfig.getClient(), oauthConfig.getSecret());
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("grant_type", GrantTypeEnum.AUTHORIZATION_CODE.getType());
+            body.add("code", code);
+            body.add("redirect_uri", oauthConfig.getCallback());
+
             HttpEntity<?> request = new HttpEntity<>(body, headers);
             ResponseEntity<ResponseToken> response = new RestTemplate().exchange(oauthConfig.getNodes().get(AUTHORIZATION_SERVER),
                     HttpMethod.POST, request, ResponseToken.class);
             return response.getBody();
-        } catch (RestClientResponseException re) {
+        } catch (RestClientResponseException | IllegalArgumentException e) {
             ResponseToken responseToken = new ResponseToken();
-            responseToken.setMessage(re.getMessage());
+            responseToken.setMessage(e.getMessage());
             return responseToken;
         }
     }
-
 
 }

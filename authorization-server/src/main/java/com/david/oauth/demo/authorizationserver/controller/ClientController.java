@@ -1,7 +1,7 @@
 package com.david.oauth.demo.authorizationserver.controller;
 
-import com.david.oauth.demo.authorizationserver.entity.Client;
 import com.david.oauth.demo.authorizationserver.service.ClientManagement;
+import com.david.oauth.demo.oauthcommons.entity.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

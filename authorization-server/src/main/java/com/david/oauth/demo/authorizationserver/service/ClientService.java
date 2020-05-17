@@ -1,9 +1,9 @@
 package com.david.oauth.demo.authorizationserver.service;
 
 import com.david.oauth.demo.authorizationserver.dao.ClientDAO;
-import com.david.oauth.demo.authorizationserver.entity.Client;
 import com.david.oauth.demo.authorizationserver.enums.GrantTypeEnum;
 import com.david.oauth.demo.authorizationserver.enums.ResponseTypeEnum;
+import com.david.oauth.demo.oauthcommons.entity.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
