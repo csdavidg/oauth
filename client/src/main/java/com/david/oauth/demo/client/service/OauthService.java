@@ -1,6 +1,7 @@
 package com.david.oauth.demo.client.service;
 
 import com.david.oauth.demo.client.config.OauthConfig;
+import com.david.oauth.demo.client.entity.ResponseToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -20,6 +21,8 @@ import javax.annotation.Resource;
 @Service
 public class OauthService {
 
+    private static final String AUTHORIZATION_SERVER = "authorization-server";
+
     @Resource
     private OauthConfig oauthConfig;
 
@@ -28,24 +31,22 @@ public class OauthService {
     public String getToken(String code) throws JSONException {
         RestTemplate restTemplate = new RestTemplate();
 
-        String url = "https://localhost:8081/oauth/access_token";
-        //(client_id=${client}, client_secret, redirect_uri=${callback}
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBasicAuth(oauthConfig.getClient(), oauthConfig.getSecret());
 
-        MultiValueMap<String, String> oauthPayload = new LinkedMultiValueMap<String, String>();
-        oauthPayload.add("client_id", oauthConfig.getClient());
-        oauthPayload.add("client_secret", oauthConfig.getSecret());
-        oauthPayload.add("code", code);
-        oauthPayload.add("redirect_uri", oauthConfig.getCallback());
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
+        body.add("grant_type", "authorization_code");
+        body.add("code", code);
+        body.add("redirect_uri", oauthConfig.getCallback());
 
-        HttpEntity<?> request = new HttpEntity<>(oauthPayload, headers);
-        ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
+        HttpEntity<?> request = new HttpEntity<>(body, headers);
+        ResponseEntity<ResponseToken> response = restTemplate.exchange(oauthConfig.getNodes().get(AUTHORIZATION_SERVER),
+                HttpMethod.POST, request, ResponseToken.class);
 
-        JSONObject jsonObject = new JSONObject(response.getBody().toString());
-
-        logger.debug("ACCES TOKEN " + jsonObject.get("access_token"));
+//        JSONObject jsonObject = new JSONObject(response.getBody().toString());
+//
+//        logger.debug("ACCES TOKEN " + jsonObject.get("access_token"));
 
         return "TOKEN";
 

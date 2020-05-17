@@ -2,6 +2,8 @@ oauth:
   client: client-1-2020
   secret: client1
   callback: http://localhost:8080/callback
+  nodes:
+    authorization-server: "http://localhost:8081/oauth/token"
 
 server:
   port: 8080

@@ -31,7 +31,7 @@ public class JwtTokenGenerator {
                 .toString();
     }
 
-    public String generateAuthorizationToken(Client client) {
+    public String generateAccessToken(Client client) {
         return Jwts.builder()
                 .setSubject(client.getClientId())
                 .setIssuedAt(new Date())

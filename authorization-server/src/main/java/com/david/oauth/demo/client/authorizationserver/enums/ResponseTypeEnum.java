@@ -13,4 +13,8 @@ public enum ResponseTypeEnum {
     public String getType() {
         return type;
     }
+
+    public static ResponseTypeEnum getValueFromString(String type){
+        return ResponseTypeEnum.valueOf(type.toUpperCase());
+    }
 }

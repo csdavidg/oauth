@@ -1,6 +1,7 @@
 package com.david.oauth.demo.client.authorizationserver.service;
 
 import com.david.oauth.demo.client.authorizationserver.component.JwtTokenGenerator;
+import com.david.oauth.demo.client.authorizationserver.entity.ResponseToken;
 import com.david.oauth.demo.client.authorizationserver.entity.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,5 +25,13 @@ public class AuthorizationService {
         client.setState(state);
         clientService.save(client);
         return authorizationCode;
+    }
+
+    public ResponseToken createResponseAccessToken(Client client) {
+        return ResponseToken.builder()
+                .accessToken(jwtTokenGenerator.generateAccessToken(client))
+                .tokenType("Bearer")
+                .state(client.getState())
+                .build();
     }
 }

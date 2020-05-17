@@ -1,11 +1,11 @@
 package com.david.oauth.demo.client.authorizationserver.controller;
 
 import com.david.oauth.demo.client.authorizationserver.entity.Client;
+import com.david.oauth.demo.client.authorizationserver.entity.ResponseToken;
 import com.david.oauth.demo.client.authorizationserver.enums.ResponseTypeEnum;
 import com.david.oauth.demo.client.authorizationserver.service.AuthorizationService;
 import com.david.oauth.demo.client.authorizationserver.service.ClientManagement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,9 +46,9 @@ public class OauthController {
 
         RedirectView redirect = new RedirectView(redirectUri);
         try {
-            Client client = clientService.validateOauthClient(clientId, redirectUri, responseType);
+            Client client = this.clientService.validateOauthClient(clientId, redirectUri, responseType);
             Map<String, String> attributesMap = new HashMap<>();
-            attributesMap.put(ResponseTypeEnum.CODE.getType(), authorizationService.generateAuthorizationCodeForClient(client, state));
+            attributesMap.put(ResponseTypeEnum.CODE.getType(), this.authorizationService.generateAuthorizationCodeForClient(client, state));
             redirect.setStatusCode(HttpStatus.FOUND);
             redirect.setAttributesMap(attributesMap);
         } catch (Exception e) {
@@ -56,9 +57,14 @@ public class OauthController {
         return redirect;
     }
 
-    @PostMapping("token")
-    public ResponseEntity<String> getToken(HttpRequest request) {
-        request.getHeaders();
-        return null;
+    @PostMapping(path = "token")
+    public ResponseEntity<?> getToken(HttpServletRequest request) {
+        try {
+            Client client = this.clientService.validateOauthClient(request);
+            ResponseToken responseToken = this.authorizationService.createResponseAccessToken(client);
+            return new ResponseEntity<>(responseToken, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
+        }
     }
 }
