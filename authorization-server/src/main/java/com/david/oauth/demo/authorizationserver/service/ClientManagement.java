@@ -1,10 +1,9 @@
-package com.david.oauth.demo.client.authorizationserver.service;
+package com.david.oauth.demo.authorizationserver.service;
 
-import com.david.oauth.demo.client.authorizationserver.entity.Client;
+import com.david.oauth.demo.authorizationserver.entity.Client;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Optional;
 
 public interface ClientManagement {
 

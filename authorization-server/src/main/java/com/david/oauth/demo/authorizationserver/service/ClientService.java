@@ -1,9 +1,9 @@
-package com.david.oauth.demo.client.authorizationserver.service;
+package com.david.oauth.demo.authorizationserver.service;
 
-import com.david.oauth.demo.client.authorizationserver.dao.ClientDAO;
-import com.david.oauth.demo.client.authorizationserver.entity.Client;
-import com.david.oauth.demo.client.authorizationserver.enums.GrantTypeEnum;
-import com.david.oauth.demo.client.authorizationserver.enums.ResponseTypeEnum;
+import com.david.oauth.demo.authorizationserver.dao.ClientDAO;
+import com.david.oauth.demo.authorizationserver.entity.Client;
+import com.david.oauth.demo.authorizationserver.enums.GrantTypeEnum;
+import com.david.oauth.demo.authorizationserver.enums.ResponseTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -12,10 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
-import static com.david.oauth.demo.client.authorizationserver.enums.GrantTypeEnum.AUTHORIZATION_CODE;
 import static java.util.stream.Collectors.toMap;
 
 @Service

@@ -1,6 +1,6 @@
-package com.david.oauth.demo.client.authorizationserver.dao;
+package com.david.oauth.demo.authorizationserver.dao;
 
-import com.david.oauth.demo.client.authorizationserver.entity.Client;
+import com.david.oauth.demo.authorizationserver.entity.Client;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

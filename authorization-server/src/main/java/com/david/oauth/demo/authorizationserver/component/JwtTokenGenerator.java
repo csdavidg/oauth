@@ -1,6 +1,6 @@
-package com.david.oauth.demo.client.authorizationserver.component;
+package com.david.oauth.demo.authorizationserver.component;
 
-import com.david.oauth.demo.client.authorizationserver.entity.Client;
+import com.david.oauth.demo.authorizationserver.entity.Client;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;

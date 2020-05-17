@@ -1,8 +1,8 @@
-package com.david.oauth.demo.client.authorizationserver.service;
+package com.david.oauth.demo.authorizationserver.service;
 
-import com.david.oauth.demo.client.authorizationserver.component.JwtTokenGenerator;
-import com.david.oauth.demo.client.authorizationserver.entity.ResponseToken;
-import com.david.oauth.demo.client.authorizationserver.entity.Client;
+import com.david.oauth.demo.authorizationserver.component.JwtTokenGenerator;
+import com.david.oauth.demo.authorizationserver.entity.ResponseToken;
+import com.david.oauth.demo.authorizationserver.entity.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.david.oauth.demo.client.authorizationserver.config;
+package com.david.oauth.demo.authorizationserver.config;
 
 import lombok.Getter;
 import lombok.Setter;

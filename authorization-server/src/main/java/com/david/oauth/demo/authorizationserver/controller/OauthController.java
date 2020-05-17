@@ -1,10 +1,10 @@
-package com.david.oauth.demo.client.authorizationserver.controller;
+package com.david.oauth.demo.authorizationserver.controller;
 
-import com.david.oauth.demo.client.authorizationserver.entity.Client;
-import com.david.oauth.demo.client.authorizationserver.entity.ResponseToken;
-import com.david.oauth.demo.client.authorizationserver.enums.ResponseTypeEnum;
-import com.david.oauth.demo.client.authorizationserver.service.AuthorizationService;
-import com.david.oauth.demo.client.authorizationserver.service.ClientManagement;
+import com.david.oauth.demo.authorizationserver.enums.ResponseTypeEnum;
+import com.david.oauth.demo.authorizationserver.service.AuthorizationService;
+import com.david.oauth.demo.authorizationserver.service.ClientManagement;
+import com.david.oauth.demo.authorizationserver.entity.Client;
+import com.david.oauth.demo.authorizationserver.entity.ResponseToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +49,7 @@ public class OauthController {
             Client client = this.clientService.validateOauthClient(clientId, redirectUri, responseType);
             Map<String, String> attributesMap = new HashMap<>();
             attributesMap.put(ResponseTypeEnum.CODE.getType(), this.authorizationService.generateAuthorizationCodeForClient(client, state));
+            attributesMap.put("state", state);
             redirect.setStatusCode(HttpStatus.FOUND);
             redirect.setAttributesMap(attributesMap);
         } catch (Exception e) {

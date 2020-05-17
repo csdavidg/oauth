@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.david.oauth.demo.client.config.OauthConfig;
+import com.david.oauth.demo.client.entity.ResponseToken;
 import com.david.oauth.demo.client.service.OauthService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,7 +39,7 @@ public class OauthController {
     @GetMapping("/callback")
     public String callback(@RequestParam String code, Model model) throws Exception {
         //TODO We also have to validate the state which was sent to the authorization_code endpoint
-        String token = oauthService.getToken(code);
+        ResponseToken token = oauthService.getToken(code);
         model.addAttribute("code", token);
         return "callback";
     }

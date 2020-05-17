@@ -1,4 +1,4 @@
-package com.david.oauth.demo.client.authorizationserver.enums;
+package com.david.oauth.demo.authorizationserver.enums;
 
 public enum GrantTypeEnum {
 

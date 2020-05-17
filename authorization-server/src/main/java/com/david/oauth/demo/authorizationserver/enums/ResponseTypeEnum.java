@@ -1,4 +1,4 @@
-package com.david.oauth.demo.client.authorizationserver.enums;
+package com.david.oauth.demo.authorizationserver.enums;
 
 public enum ResponseTypeEnum {
 
@@ -14,7 +14,7 @@ public enum ResponseTypeEnum {
         return type;
     }
 
-    public static ResponseTypeEnum getValueFromString(String type){
+    public static ResponseTypeEnum getValueFromString(String type) {
         return ResponseTypeEnum.valueOf(type.toUpperCase());
     }
 }

@@ -1,4 +1,4 @@
-package com.david.oauth.demo.client.authorizationserver.entity;
+package com.david.oauth.demo.authorizationserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
