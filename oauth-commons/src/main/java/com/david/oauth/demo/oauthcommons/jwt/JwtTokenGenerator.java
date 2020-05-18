@@ -8,10 +8,10 @@ import lombok.AllArgsConstructor;
 import java.util.Date;
 import java.util.Random;
 
+import static com.david.oauth.demo.oauthcommons.constants.Constants.JWT_EXPIRATION;
+
 @AllArgsConstructor
 public class JwtTokenGenerator {
-
-    private static final long JWT_EXPIRATION = 10 * 60 * 60;
 
     private String jwtKey;
 

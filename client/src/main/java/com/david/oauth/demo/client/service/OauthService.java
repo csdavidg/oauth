@@ -3,8 +3,8 @@ package com.david.oauth.demo.client.service;
 import com.david.oauth.demo.authorizationserver.enums.GrantTypeEnum;
 import com.david.oauth.demo.client.config.OauthConfig;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,6 +17,13 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+
+import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_STATE;
 
 @Service
 public class OauthService {
@@ -26,10 +33,18 @@ public class OauthService {
     @Resource
     private OauthConfig oauthConfig;
 
-    public ResponseToken getToken(String code, String originalState, String state) {
-        try {
+    private TokenService tokenService;
 
-            if (!originalState.equals(state)) {
+    @Autowired
+    public OauthService(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    public ResponseToken getToken(String code, String state) {
+        ResponseToken responseToken = new ResponseToken();
+
+        try {
+            if (!this.tokenService.getValueFromKeyStore(KEY_STORE_ALIAS_STATE).equals(state)) {
                 throw new IllegalArgumentException();
             }
 
@@ -45,12 +60,21 @@ public class OauthService {
             HttpEntity<?> request = new HttpEntity<>(body, headers);
             ResponseEntity<ResponseToken> response = new RestTemplate().exchange(oauthConfig.getNodes().get(AUTHORIZATION_SERVER),
                     HttpMethod.POST, request, ResponseToken.class);
-            return response.getBody();
-        } catch (RestClientResponseException | IllegalArgumentException e) {
-            ResponseToken responseToken = new ResponseToken();
+            responseToken = response.getBody();
+
+            String jsonToken = new ObjectMapper().writeValueAsString(responseToken);
+            this.tokenService.saveValueIntoKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN, jsonToken);
+
+            String valueFromKey = this.tokenService.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
+            System.out.println("JSON: " + valueFromKey);
+        } catch (RestClientResponseException | IllegalArgumentException | NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | IOException e) {
             responseToken.setMessage(e.getMessage());
-            return responseToken;
         }
+        return responseToken;
+    }
+
+    public String getProtected() {
+        return "";
     }
 
 }

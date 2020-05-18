@@ -1,7 +1,10 @@
 oauth:
-  client: client-1-2020
-  secret: client1
-  callback: http://localhost:8080/callback
+  key-store:
+    password: "client1keystore"
+    name: "clientkeystore"
+  client: "client-1-2020"
+  secret: "client1"
+  callback: "http://localhost:8080/callback"
   nodes:
     authorization-server: "http://localhost:8081/oauth/token"
 
@@ -9,4 +12,4 @@ server:
   port: 8080
 
 jwt:
-  secret: jwtclient
+  secret: "jwtclient"
