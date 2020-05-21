@@ -2,9 +2,11 @@ package com.david.oauth.demo.client.service;
 
 import com.david.oauth.demo.authorizationserver.enums.GrantTypeEnum;
 import com.david.oauth.demo.client.config.OauthConfig;
+import com.david.oauth.demo.oauthcommons.entity.Employee;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,6 +23,8 @@ import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_STATE;
@@ -65,16 +69,10 @@ public class OauthService {
             String jsonToken = new ObjectMapper().writeValueAsString(responseToken);
             this.tokenService.saveValueIntoKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN, jsonToken);
 
-            String valueFromKey = this.tokenService.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
-            System.out.println("JSON: " + valueFromKey);
         } catch (RestClientResponseException | IllegalArgumentException | NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | IOException e) {
             responseToken.setMessage(e.getMessage());
         }
         return responseToken;
-    }
-
-    public String getProtected() {
-        return "";
     }
 
 }

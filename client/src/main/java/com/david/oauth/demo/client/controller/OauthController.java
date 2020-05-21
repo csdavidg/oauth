@@ -1,9 +1,13 @@
 package com.david.oauth.demo.client.controller;
 
 import com.david.oauth.demo.client.config.OauthConfig;
-import com.david.oauth.demo.client.service.TokenService;
+import com.david.oauth.demo.client.service.EmployeeService;
 import com.david.oauth.demo.client.service.OauthService;
+import com.david.oauth.demo.client.service.TokenService;
+import com.david.oauth.demo.oauthcommons.entity.Employee;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,21 +16,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 public class OauthController {
+
+    Logger logger = LoggerFactory.getLogger(OauthController.class);
 
     @Resource
     private OauthConfig oauthConfig;
 
     private final OauthService oauthService;
-
     private final TokenService tokenService;
+    private final EmployeeService employeeService;
 
     @Autowired
-    public OauthController(OauthService oauthService, TokenService tokenService) {
+    public OauthController(OauthService oauthService, TokenService tokenService, EmployeeService employeeService) {
         this.oauthService = oauthService;
         this.tokenService = tokenService;
+        this.employeeService = employeeService;
     }
 
     @GetMapping("/")
@@ -51,7 +59,12 @@ public class OauthController {
 
     @GetMapping("/protected")
     public String protectedReource() {
-        this.oauthService.getProtected();
+        try {
+            List<Employee> employeeList = this.employeeService.getEmployeesFromAPI();
+            logger.info("LIST " + employeeList.toString());
+        } catch (Exception e) {
+            return "error";
+        }
         return "OK";
     }
 

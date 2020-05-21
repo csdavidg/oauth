@@ -8,6 +8,10 @@ oauth:
   nodes:
     authorization-server: "http://localhost:8081/oauth/token"
 
+api:
+  protected:
+    employees: "http://localhost:8082/employee/all"
+
 server:
   port: 8080
 
