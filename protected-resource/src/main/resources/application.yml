@@ -5,3 +5,6 @@ security:
 
 server:
   port: 8082
+
+jwt:
+  secret: jwttokensecret
