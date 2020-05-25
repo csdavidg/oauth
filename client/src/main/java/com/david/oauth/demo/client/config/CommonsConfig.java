@@ -1,6 +1,6 @@
 package com.david.oauth.demo.client.config;
 
-import com.david.oauth.demo.oauthcommons.jwt.JwtTokenGenerator;
+import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,8 +12,8 @@ public class CommonsConfig {
     private String jwtKey;
 
     @Bean
-    public JwtTokenGenerator jwtTokenGenerator() {
-        return new JwtTokenGenerator(jwtKey);
+    public JwtTokenUtil jwtTokenUtil() {
+        return new JwtTokenUtil(jwtKey);
     }
 
 }

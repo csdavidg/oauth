@@ -1,6 +1,6 @@
 package com.david.oauth.demo.client.service;
 
-import com.david.oauth.demo.oauthcommons.jwt.JwtTokenGenerator;
+import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import com.david.oauth.demo.oauthcommons.util.OauthKeyStoreUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,15 +22,15 @@ public class TokenService {
     @Value("${oauth.key-store.name}")
     public String keyStoreName;
 
-    private JwtTokenGenerator jwtTokenGenerator;
+    private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    public TokenService(JwtTokenGenerator jwtTokenGenerator) {
-        this.jwtTokenGenerator = jwtTokenGenerator;
+    public TokenService(JwtTokenUtil jwtTokenUtil) {
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     public String createAndSaveRequestState() throws IOException, KeyStoreException {
-        String state = jwtTokenGenerator.generateState();
+        String state = jwtTokenUtil.generateState();
         this.saveValueIntoKeyStore(KEY_STORE_ALIAS_STATE, state);
         return state;
     }

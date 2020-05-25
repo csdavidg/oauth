@@ -6,8 +6,6 @@ import com.david.oauth.demo.client.service.OauthService;
 import com.david.oauth.demo.client.service.TokenService;
 import com.david.oauth.demo.oauthcommons.entity.Employee;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,8 +18,6 @@ import java.util.List;
 
 @Controller
 public class OauthController {
-
-    Logger logger = LoggerFactory.getLogger(OauthController.class);
 
     @Resource
     private OauthConfig oauthConfig;

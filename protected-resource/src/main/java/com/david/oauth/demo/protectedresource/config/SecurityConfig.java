@@ -1,5 +1,6 @@
 package com.david.oauth.demo.protectedresource.config;
 
+import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import com.david.oauth.demo.protectedresource.filter.AccessTokenFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable();
 
         http.headers().frameOptions().disable();
-        http.addFilter(new AccessTokenFilter(authenticationManager(), jwtKey));
+        http.addFilter(new AccessTokenFilter(authenticationManager(), new JwtTokenUtil(jwtKey)));
     }
 
     @Override
