@@ -58,14 +58,14 @@ public class OauthController {
     }
 
     @GetMapping("/protected")
-    public String protectedReource() {
-        try {
-            List<Employee> employeeList = this.employeeService.getEmployeesFromAPI();
-            logger.info("LIST " + employeeList.toString());
-        } catch (Exception e) {
-            return "error";
+    public String protectedReource(Model model) {
+        List<Employee> employeeList = this.employeeService.getEmployeesFromAPI();
+        if(employeeList != null){
+            model.addAttribute("employeesList", employeeList);
+        }else{
+            model.addAttribute("error", "You are not authorized to access this resource");
         }
-        return "OK";
+        return "list-employees";
     }
 
 

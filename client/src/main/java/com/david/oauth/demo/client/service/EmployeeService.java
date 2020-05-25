@@ -3,6 +3,8 @@ package com.david.oauth.demo.client.service;
 import com.david.oauth.demo.oauthcommons.entity.Employee;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -24,6 +26,8 @@ import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_AL
 @Service
 public class EmployeeService {
 
+    private final static Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
     @Value("${api.protected.employees}")
     public String employeesEndpoint;
 
@@ -34,16 +38,20 @@ public class EmployeeService {
         this.tokenService = tokenService;
     }
 
-    public List<Employee> getEmployeesFromAPI() throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    public List<Employee> getEmployeesFromAPI() {
+        try {
+            String valueFromKey = this.tokenService.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
+            ResponseToken responseToken = new ObjectMapper().readValue(valueFromKey, ResponseToken.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(responseToken.getAccessToken());
 
-        String valueFromKey = this.tokenService.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
-        ResponseToken responseToken = new ObjectMapper().readValue(valueFromKey, ResponseToken.class);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(responseToken.getAccessToken());
-
-        HttpEntity<?> request = new HttpEntity<>("", headers);
-        ResponseEntity<Employee[]> response = new RestTemplate().exchange(employeesEndpoint, HttpMethod.GET, request, Employee[].class);
-        return Arrays.asList(response.getBody());
+            HttpEntity<?> request = new HttpEntity<>("", headers);
+            ResponseEntity<Employee[]> response = new RestTemplate().exchange(employeesEndpoint, HttpMethod.GET, request, Employee[].class);
+            return Arrays.asList(response.getBody());
+        } catch (Exception e) {
+            logger.info("Exception " + e.getMessage());
+            return null;
+        }
     }
 
 }
