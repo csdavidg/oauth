@@ -1,7 +1,5 @@
 package com.david.oauth.demo.oauthcommons.util;
 
-import com.david.oauth.demo.oauthcommons.jwt.JwtTokenGenerator;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -20,7 +18,7 @@ public class OauthKeyStoreUtilTest {
     @Test
     public void saveValueIntoKeyStore() throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException {
         OauthKeyStoreUtil oauthKeyStoreUtil = new OauthKeyStoreUtil(KEY_STORE_NAME, KEY_STORE_PASSWORD);
-        JwtTokenGenerator jwt = new JwtTokenGenerator("HOLA");
+        JwtTokenUtil jwt = new JwtTokenUtil("HOLA");
         String state = jwt.generateState();
         oauthKeyStoreUtil.saveEntry(KEY_STORE_ALIAS, state);
         String value = oauthKeyStoreUtil.getValueFromKeyStore(KEY_STORE_ALIAS);

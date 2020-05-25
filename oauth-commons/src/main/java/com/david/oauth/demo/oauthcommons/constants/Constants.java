@@ -9,6 +9,6 @@ public class Constants {
     public final static String KEY_STORE_TYPE = "JCEKS";
     public final static String KEY_STORE_ALGORITHM = "AES";
 
-    public final static long JWT_EXPIRATION = 10 * 60 * 60;
+    public final static String TOKEN_TYPE = "Bearer";
 
 }
