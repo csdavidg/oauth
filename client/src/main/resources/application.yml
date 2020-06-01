@@ -6,7 +6,9 @@ oauth:
   secret: "client1"
   callback: "http://localhost:8080/callback"
   nodes:
-    authorization-server: "http://localhost:8081/oauth/token"
+    as_authorization_code: "http://localhost:8081/oauth/authorize"
+    #https://github.com/login/oauth/authorize
+    as_token: "http://localhost:8081/oauth/token"
 
 api:
   protected:

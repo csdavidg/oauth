@@ -49,6 +49,18 @@ public class JwtTokenUtil {
         }
     }
 
+    public String generateRefreshToken() {
+        try {
+            return Jwts.builder()
+                    .setSubject("{grant_type: 'refresh_token'}")
+                    .setIssuedAt(new DateTime().withTimeAtStartOfDay().toDate())
+                    .setExpiration(new DateTime().plusDays(1).withTimeAtStartOfDay().toDate())
+                    .signWith(SignatureAlgorithm.HS512, jwtKey).compact();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error generating access token " + e.getMessage());
+        }
+    }
+
     public Claims validateJwtAccessToken(String token) {
         try {
             return Jwts.parser()

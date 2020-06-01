@@ -1,8 +1,9 @@
-package com.david.oauth.demo.authorizationserver.enums;
+package com.david.oauth.demo.oauthcommons.enums;
 
 public enum GrantTypeEnum {
 
-    AUTHORIZATION_CODE("authorization_code");
+    AUTHORIZATION_CODE("authorization_code"),
+    REFRESH_TOKEN("refresh_token");
 
     private String type;
 

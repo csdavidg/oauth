@@ -8,10 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
 import java.util.List;
 
 
@@ -23,7 +19,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @GetMapping("/employeesList")
-    public String listEmployees(Model model) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException, IOException {
+    public String listEmployees(Model model) {
         List<Employee> employeesList = employeeService.getEmployeesFromAPI();
         model.addAttribute("employeesList", employeesList);
         return "list-employees";

@@ -1,9 +1,9 @@
 package com.david.oauth.demo.authorizationserver.service;
 
 import com.david.oauth.demo.authorizationserver.dao.ClientDAO;
-import com.david.oauth.demo.authorizationserver.enums.GrantTypeEnum;
-import com.david.oauth.demo.authorizationserver.enums.ResponseTypeEnum;
 import com.david.oauth.demo.oauthcommons.entity.Client;
+import com.david.oauth.demo.oauthcommons.enums.GrantTypeEnum;
+import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -14,12 +14,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.david.oauth.demo.oauthcommons.constants.Constants.GRANT_TYPE;
 import static java.util.stream.Collectors.toMap;
 
 @Service
 public class ClientService implements ClientManagement {
 
-    private ClientDAO clientDAO;
+    private final ClientDAO clientDAO;
 
     @Autowired
     public ClientService(ClientDAO clientDAO) {
@@ -64,7 +65,7 @@ public class ClientService implements ClientManagement {
     public Client validateOauthClient(HttpServletRequest request) throws IllegalArgumentException {
         try {
 
-            if (GrantTypeEnum.getValueFromString(request.getParameter("grant_type")) == null) {
+            if (GrantTypeEnum.getValueFromString(request.getParameter(GRANT_TYPE)) == null) {
                 throw new IllegalArgumentException();
             }
 

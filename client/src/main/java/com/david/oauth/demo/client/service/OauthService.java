@@ -1,12 +1,12 @@
 package com.david.oauth.demo.client.service;
 
-import com.david.oauth.demo.authorizationserver.enums.GrantTypeEnum;
 import com.david.oauth.demo.client.config.OauthConfig;
-import com.david.oauth.demo.oauthcommons.entity.Employee;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
+import com.david.oauth.demo.oauthcommons.enums.GrantTypeEnum;
+import com.david.oauth.demo.oauthcommons.managers.KeyStoreManager;
+import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,59 +17,117 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_AUTHORIZATION_CODE;
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_STATE;
 
 @Service
 public class OauthService {
 
-    private static final String AUTHORIZATION_SERVER = "authorization-server";
+    private static final String AS_AUTHORIZATION_CODE = "as_authorization_code";
+    private static final String AS_TOKEN = "as_token";
+
 
     @Resource
     private OauthConfig oauthConfig;
 
-    private TokenService tokenService;
+    private KeyStoreManager keyStoreManager;
+
+    private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    public OauthService(TokenService tokenService) {
-        this.tokenService = tokenService;
+    public OauthService(KeyStoreManager tokenService, JwtTokenUtil jwtTokenUtil) {
+        this.keyStoreManager = tokenService;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    public ResponseToken getToken(String code, String state) {
+    public String getAuthorizationCodeURI() {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("response_type", "code");
+        params.add("state", this.createAndSaveRequestState());
+        params.add("client_id", this.oauthConfig.getClient());
+        params.add("redirect_uri", this.oauthConfig.getCallback());
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(this.oauthConfig.getNodes().get(AS_AUTHORIZATION_CODE))
+                .queryParams(params);
+
+        return uriBuilder.toUriString();
+    }
+
+
+    public ResponseToken getAccessToken() {
+        String authorizationCode = this.keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_AUTHORIZATION_CODE);
+        if (authorizationCode == null) {
+            throw new IllegalArgumentException("Invalid Refresh Token");
+        }
+        MultiValueMap<String, String> requestBody = this.createAccessTokenRequestBody(GrantTypeEnum.AUTHORIZATION_CODE);
+        requestBody.add("code", authorizationCode);
+        return this.getTokenFromAuthorizationServer(requestBody);
+    }
+
+    public ResponseToken getAccessTokenUsingRefresh() throws IOException {
+        String valueFromKey = this.keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
+        if (valueFromKey == null) {
+            throw new IllegalArgumentException("Invalid Refresh Token");
+        }
+        ResponseToken responseToken = new ObjectMapper().readValue(valueFromKey, ResponseToken.class);
+
+        MultiValueMap<String, String> requestBody = this.createAccessTokenRequestBody(GrantTypeEnum.REFRESH_TOKEN);
+        requestBody.add("refresh_token", responseToken.getRefreshToken());
+        return this.getTokenFromAuthorizationServer(requestBody);
+    }
+
+    public void validateAndSaveAuthorizationCode(String code, String state) {
+        if (!this.keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_STATE).equals(state)) {
+            throw new IllegalArgumentException();
+        }
+        this.keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_AUTHORIZATION_CODE, code);
+    }
+
+    public String createAndSaveRequestState() {
+        String state = this.jwtTokenUtil.generateState();
+        this.keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_STATE, state);
+        return state;
+    }
+
+    public ResponseToken getAccessTokenFromKeyStore() throws IOException {
+        String valueFromKey = this.keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
+        if (valueFromKey == null) {
+            throw new IllegalArgumentException("Invalid Access Token");
+        }
+        return new ObjectMapper().readValue(valueFromKey, ResponseToken.class);
+    }
+
+    private MultiValueMap<String, String> createAccessTokenRequestBody(GrantTypeEnum grantType) {
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", grantType.getType());
+        body.add("redirect_uri", oauthConfig.getCallback());
+        return body;
+    }
+
+    private ResponseToken getTokenFromAuthorizationServer(MultiValueMap<String, String> body) {
+
         ResponseToken responseToken = new ResponseToken();
-
         try {
-            if (!this.tokenService.getValueFromKeyStore(KEY_STORE_ALIAS_STATE).equals(state)) {
-                throw new IllegalArgumentException();
-            }
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             headers.setBasicAuth(oauthConfig.getClient(), oauthConfig.getSecret());
 
-            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-            body.add("grant_type", GrantTypeEnum.AUTHORIZATION_CODE.getType());
-            body.add("code", code);
-            body.add("redirect_uri", oauthConfig.getCallback());
-
             HttpEntity<?> request = new HttpEntity<>(body, headers);
-            ResponseEntity<ResponseToken> response = new RestTemplate().exchange(oauthConfig.getNodes().get(AUTHORIZATION_SERVER),
+            ResponseEntity<ResponseToken> response = new RestTemplate().exchange(oauthConfig.getNodes().get(AS_TOKEN),
                     HttpMethod.POST, request, ResponseToken.class);
             responseToken = response.getBody();
 
             String jsonToken = new ObjectMapper().writeValueAsString(responseToken);
-            this.tokenService.saveValueIntoKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN, jsonToken);
+            this.keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN, jsonToken);
 
-        } catch (RestClientResponseException | IllegalArgumentException | NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException | IOException e) {
+        } catch (RestClientResponseException | IllegalArgumentException | IOException e) {
             responseToken.setMessage(e.getMessage());
         }
         return responseToken;

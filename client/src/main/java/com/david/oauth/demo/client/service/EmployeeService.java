@@ -2,7 +2,7 @@ package com.david.oauth.demo.client.service;
 
 import com.david.oauth.demo.oauthcommons.entity.Employee;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
-
 @Service
 public class EmployeeService {
 
@@ -27,17 +25,18 @@ public class EmployeeService {
     @Value("${api.protected.employees}")
     public String employeesEndpoint;
 
-    private final TokenService tokenService;
+    private final OauthService oauthService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    public EmployeeService(TokenService tokenService) {
-        this.tokenService = tokenService;
+    public EmployeeService(OauthService oauthService, JwtTokenUtil jwtTokenUtil) {
+        this.oauthService = oauthService;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     public List<Employee> getEmployeesFromAPI() {
         try {
-            String valueFromKey = this.tokenService.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
-            ResponseToken responseToken = new ObjectMapper().readValue(valueFromKey, ResponseToken.class);
+            ResponseToken responseToken = this.oauthService.getAccessTokenFromKeyStore();
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(responseToken.getAccessToken());
 

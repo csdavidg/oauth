@@ -1,10 +1,10 @@
 package com.david.oauth.demo.authorizationserver.controller;
 
-import com.david.oauth.demo.authorizationserver.enums.ResponseTypeEnum;
 import com.david.oauth.demo.authorizationserver.service.AuthorizationService;
 import com.david.oauth.demo.authorizationserver.service.ClientManagement;
 import com.david.oauth.demo.oauthcommons.entity.Client;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
+import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +62,7 @@ public class OauthController {
     public ResponseEntity<?> getToken(HttpServletRequest request) {
         try {
             Client client = this.clientService.validateOauthClient(request);
-            ResponseToken responseToken = this.authorizationService.createResponseAccessToken(client);
+            ResponseToken responseToken = this.authorizationService.getAccessToken(client, request);
             return new ResponseEntity<>(responseToken, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);

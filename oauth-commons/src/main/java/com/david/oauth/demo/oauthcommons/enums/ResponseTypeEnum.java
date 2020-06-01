@@ -1,4 +1,4 @@
-package com.david.oauth.demo.authorizationserver.enums;
+package com.david.oauth.demo.oauthcommons.enums;
 
 public enum ResponseTypeEnum {
 

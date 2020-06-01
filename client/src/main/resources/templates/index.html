@@ -1,18 +1,81 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico"/>
 
-    <title>Hello</title>
-    <link rel="stylesheet" th:href="@{/css/demo.css}"/>
+    <title>Client</title>
+    <link href="../static/css/bootstrap.css" rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
 </head>
 <body>
-<p th:text="'Time is :' + ${date}" class="funny"></p>
+<div class="container-fluid">
+    <div class="row d-flex align-items-center justify-content-center mt-2 bg-light">
+        <h1>Oauth - Demo</h1>
+    </div>
 
-<!--<a th:href="@{https://github.com/login/oauth/authorize(response_type=code, scope='repo', state= ${state},
-					client_id=${client}, redirect_uri=${callback})}">Get Authorization Code</a>-->
+    <div class="row d-flex align-items-center justify-content-center mt-1" th:if="${error != null}">
+        <div class="alert alert-danger" role="alert">
+            <h3 th:text="${error}"></h3>
+        </div>
+    </div>
 
-<a th:href="@{http://localhost:8081/oauth/authorize(response_type=code, state= ${state},
-					client_id=${client}, redirect_uri=${callback})}">Get Authorization Code</a>
+    <div class="row" th:each="card : ${cards}">
+
+        <div class="col-sm-4 d-flex align-items-center justify-content-center">
+            <div class="card text-center shadow p-3 mb-5 bg-white rounded mt-3 w-75">
+                <div class="card-header">
+                    <h5 class="card-title" th:text="${card.cardTitle}"></h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text" th:text="${card.cardDescription}"></p>
+
+                    <div th:if="${card.cardError != null}">
+                        <div class="alert alert-danger" role="alert">
+                            <h3 th:text="${card.cardError}"></h3>
+                        </div>
+                    </div>
+
+                    <a th:href="@{${card.buttonAction}}"
+                       class="btn btn-outline-primary btn-lg" role="button"
+                       th:classappend="${card.buttonClass}" th:text="${card.buttonMessage}"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <img th:src="@{${card.imagePath}}" class="img-fluid" th:alt="${card.imageAlt}">
+        </div>
+
+    </div>
+
+    <div class="row d-flex align-items-center justify-content-center mt-2 bg-light" th:if="${employees != null}">
+        <div class="col-12">
+            <h1 th:text="Employees"></h1>
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="employee : ${employees}">
+                    <td th:text="${employee.firstName}"></td>
+                    <td th:text="${employee.lastName}"></td>
+                    <td th:text="${employee.email}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
 
 </body>
 </html>

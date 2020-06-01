@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALGORITHM;
@@ -57,30 +56,45 @@ public class OauthKeyStoreUtil {
         }
     }
 
-    public void saveEntry(String alias, String entry) throws KeyStoreException, IOException {
-
-        SecretKey mySecretKey = new SecretKeySpec(entry.getBytes(), KEY_STORE_ALGORITHM);
-        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(mySecretKey);
-        this.keyStore.setEntry(alias, skEntry, this.protectionParameter);
+    public void saveEntry(String alias, String entry) {
+        try {
+            SecretKey mySecretKey = new SecretKeySpec(entry.getBytes(), KEY_STORE_ALGORITHM);
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(mySecretKey);
+            this.keyStore.setEntry(alias, skEntry, this.protectionParameter);
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
 
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(this.keyStoreName);
             this.keyStore.store(fos, this.keyStorePassword.toCharArray());
-        } catch (IOException | CertificateException | NoSuchAlgorithmException e) {
+        } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
             e.printStackTrace();
         } finally {
             if (fos != null) {
-                fos.close();
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    public String getValueFromKeyStore(String alias) throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException, IOException {
-        KeyStore.Entry pkEntry = this.keyStore.getEntry(alias, this.protectionParameter);
-        KeyStore.SecretKeyEntry keyEntry = (KeyStore.SecretKeyEntry) pkEntry;
-        SecretKeySpec secSpec = (SecretKeySpec) (keyEntry).getSecretKey();
-        return new String(secSpec.getEncoded());
+    public String getValueFromKeyStore(String alias) {
+        String value = null;
+        try {
+            KeyStore.Entry pkEntry = this.keyStore.getEntry(alias, this.protectionParameter);
+            if (pkEntry != null) {
+                KeyStore.SecretKeyEntry keyEntry = (KeyStore.SecretKeyEntry) pkEntry;
+                SecretKeySpec secSpec = (SecretKeySpec) (keyEntry).getSecretKey();
+                value = new String(secSpec.getEncoded());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return value;
     }
 
 }
