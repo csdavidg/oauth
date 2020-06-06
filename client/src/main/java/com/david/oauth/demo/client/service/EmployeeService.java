@@ -36,7 +36,7 @@ public class EmployeeService {
 
     public List<Employee> getEmployeesFromAPI() {
         try {
-            ResponseToken responseToken = this.oauthService.getAccessTokenFromKeyStore();
+            ResponseToken responseToken = oauthService.getAccessTokenFromKeyStore();
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(responseToken.getAccessToken());
 

@@ -40,7 +40,7 @@
                     </div>
 
                     <a th:href="@{${card.buttonAction}}"
-                       class="btn btn-outline-primary btn-lg" role="button"
+                       class="btn btn-dark btn-lg" role="button"
                        th:classappend="${card.buttonClass}" th:text="${card.buttonMessage}"></a>
                 </div>
             </div>
@@ -52,11 +52,11 @@
 
     </div>
 
-    <div class="row d-flex align-items-center justify-content-center mt-2 bg-light" th:if="${employees != null}">
-        <div class="col-12">
+    <div class="row d-flex align-items-center justify-content-center mt-2" th:if="${employees != null}">
+        <div class="col-11">
             <h1 th:text="Employees"></h1>
             <table class="table table-bordered table-striped">
-                <thead>
+                <thead class="thead-dark">
                 <tr>
                     <th>First Name</th>
                     <th>Last Name</th>

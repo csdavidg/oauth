@@ -9,7 +9,7 @@ import lombok.Setter;
 @Builder
 public class ViewDTO {
 
-    private int id;
+    private CardEnum cardEnum;
     private String cardTitle;
     private String cardDescription;
     private String cardError;
@@ -28,13 +28,13 @@ public class ViewDTO {
 
         ViewDTO viewDTO = (ViewDTO) o;
 
-        if (id != viewDTO.id) return false;
+        if (cardEnum != viewDTO.cardEnum) return false;
         return cardTitle != null ? cardTitle.equals(viewDTO.cardTitle) : viewDTO.cardTitle == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result = cardEnum.getId();
         result = 31 * result + (cardTitle != null ? cardTitle.hashCode() : 0);
         return result;
     }
