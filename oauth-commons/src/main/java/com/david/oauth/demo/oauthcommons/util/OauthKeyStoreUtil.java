@@ -52,19 +52,12 @@ public class OauthKeyStoreUtil {
         try {
             return new FileInputStream(this.keyStoreName);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
             return null;
         }
     }
 
-    public void saveEntry(String alias, String entry) {
-        try {
-            SecretKey mySecretKey = new SecretKeySpec(entry.getBytes(), KEY_STORE_ALGORITHM);
-            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(mySecretKey);
-            this.keyStore.setEntry(alias, skEntry, this.protectionParameter);
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
-
+    private void updateAndCloseKeyStore() {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(this.keyStoreName);
@@ -82,6 +75,17 @@ public class OauthKeyStoreUtil {
         }
     }
 
+    public void saveEntry(String alias, String entry) {
+        try {
+            SecretKey mySecretKey = new SecretKeySpec(entry.getBytes(), KEY_STORE_ALGORITHM);
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(mySecretKey);
+            this.keyStore.setEntry(alias, skEntry, this.protectionParameter);
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+        updateAndCloseKeyStore();
+    }
+
     public String getValueFromKeyStore(String alias) {
         String value = null;
         try {
@@ -95,6 +99,15 @@ public class OauthKeyStoreUtil {
             e.printStackTrace();
         }
         return value;
+    }
+
+    public void deleteValueInKeyStore(String key) {
+        try {
+            this.keyStore.deleteEntry(key);
+            updateAndCloseKeyStore();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

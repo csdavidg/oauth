@@ -3,8 +3,6 @@ package com.david.oauth.demo.oauthcommons.managers;
 import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import com.david.oauth.demo.oauthcommons.util.OauthKeyStoreUtil;
 
-import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_STATE;
-
 public class KeyStoreManager {
 
     public final String keyStorePassword;
@@ -18,12 +16,17 @@ public class KeyStoreManager {
     }
 
     public String getValueFromKeyStore(String value) {
-        OauthKeyStoreUtil keyStoreUtil = new OauthKeyStoreUtil(this.keyStoreName, this.keyStorePassword);
+        OauthKeyStoreUtil keyStoreUtil = new OauthKeyStoreUtil(keyStoreName, keyStorePassword);
         return keyStoreUtil.getValueFromKeyStore(value);
     }
 
     public void saveValueIntoKeyStore(String alias, String value) {
-        OauthKeyStoreUtil keyStoreUtil = new OauthKeyStoreUtil(this.keyStoreName, this.keyStorePassword);
+        OauthKeyStoreUtil keyStoreUtil = new OauthKeyStoreUtil(keyStoreName, keyStorePassword);
         keyStoreUtil.saveEntry(alias, value);
+    }
+
+    public void deleteValueInKeyStore(String alias) {
+        OauthKeyStoreUtil keyStoreUtil = new OauthKeyStoreUtil(keyStoreName, keyStorePassword);
+        keyStoreUtil.deleteValueInKeyStore(alias);
     }
 }
