@@ -42,7 +42,7 @@ public class AccessTokenFilter extends BasicAuthenticationFilter {
 
     private UsernamePasswordAuthenticationToken getAuthenticationValidatingJWT(HttpServletRequest request) {
         String token = request.getHeader(AUTHORIZATION).replace(TOKEN_TYPE, "").trim();
-        Claims tokenValidated = this.jwtTokenUtil.validateJwtAccessToken(token);
+        Claims tokenValidated = jwtTokenUtil.validateJwtAccessToken(token);
         return new UsernamePasswordAuthenticationToken(tokenValidated, null, new ArrayList<>());
     }
 }
