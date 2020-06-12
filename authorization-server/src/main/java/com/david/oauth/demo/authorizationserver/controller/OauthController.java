@@ -8,6 +8,7 @@ import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,13 +20,16 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_REFRESH_TOKEN;
+
 @RestController
 @RequestMapping("/oauth")
 public class OauthController {
 
-    private ClientManagement clientService;
+    private final ClientManagement clientService;
 
-    private AuthorizationService authorizationService;
+    private final AuthorizationService authorizationService;
 
     @Autowired
     public OauthController(ClientManagement clientService, AuthorizationService authorizationService) {
@@ -58,14 +62,27 @@ public class OauthController {
         return redirect;
     }
 
-    @PostMapping(path = "token")
+    @PostMapping("token")
     public ResponseEntity<?> getToken(HttpServletRequest request) {
         try {
-            Client client = this.clientService.validateOauthClient(request);
-            ResponseToken responseToken = this.authorizationService.getAccessToken(client, request);
+            Client client = clientService.validateOauthClient(request);
+            ResponseToken responseToken = authorizationService.getAccessToken(client, request);
             return new ResponseEntity<>(responseToken, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @DeleteMapping("revoke/access/token")
+    public ResponseEntity<?> deleteAccessToken(@RequestParam("client_id") String clientId) {
+        authorizationService.revokeToken(clientId.concat(KEY_STORE_ALIAS_ACCESS_TOKEN));
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @DeleteMapping("revoke/refresh/token")
+    public ResponseEntity<?> deleteRefreshToken(@RequestParam("client_id") String clientId) {
+        authorizationService.revokeToken(clientId.concat(KEY_STORE_ALIAS_REFRESH_TOKEN));
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
 }

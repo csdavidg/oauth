@@ -11,4 +11,8 @@ public interface ClientDAO extends JpaRepository<Client, Long> {
 
     Optional<Client> findByClientIdAndClientSecretAndAuthorizationCode(String clientId, String clientSecret, String code);
 
+    Optional<Client> findByClientIdAndClientSecret(String clientId, String clientSecret);
+
+    Optional<Client> findByClientIdAndClientSecretAndRedirectUri(String clientId, String clientSecret, String redirectUri);
+
 }

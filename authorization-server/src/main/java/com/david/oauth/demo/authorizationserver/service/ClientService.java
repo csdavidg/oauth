@@ -49,10 +49,11 @@ public class ClientService implements ClientManagement {
 
     public Client validateOauthClient(String clientId, String redirectUri, String responseType) throws IllegalArgumentException {
         try {
-            if (!ResponseTypeEnum.CODE.equals(ResponseTypeEnum.getValueFromString(responseType))) {
+            ResponseTypeEnum responseTypeEnum = ResponseTypeEnum.getValueFromString(responseType);
+            if (responseTypeEnum == null) {
                 throw new IllegalArgumentException();
             }
-            Client client = this.clientDAO.findByClientId(clientId).orElseThrow(IllegalArgumentException::new);
+            Client client = clientDAO.findByClientId(clientId).orElseThrow(IllegalArgumentException::new);
             if (!client.getRedirectUri().equals(redirectUri)) {
                 throw new IllegalArgumentException();
             }
@@ -65,7 +66,8 @@ public class ClientService implements ClientManagement {
     public Client validateOauthClient(HttpServletRequest request) throws IllegalArgumentException {
         try {
 
-            if (GrantTypeEnum.getValueFromString(request.getParameter(GRANT_TYPE)) == null) {
+            GrantTypeEnum grantType = GrantTypeEnum.getValueFromString(request.getParameter(GRANT_TYPE));
+            if (grantType == null) {
                 throw new IllegalArgumentException();
             }
 
@@ -77,8 +79,20 @@ public class ClientService implements ClientManagement {
 
             String credentials = headers.getFirst(HttpHeaders.AUTHORIZATION).replace("Basic", "").trim();
             String[] credentialsDecoded = new String(Base64.getDecoder().decode(credentials)).split(":");
-            return this.clientDAO.findByClientIdAndClientSecretAndAuthorizationCode(credentialsDecoded[0], credentialsDecoded[1], request.getParameter("code"))
+            Client client = clientDAO.findByClientIdAndClientSecretAndRedirectUri(credentialsDecoded[0], credentialsDecoded[1], request.getParameter("redirect_uri"))
                     .orElseThrow(IllegalArgumentException::new);
+
+            if (grantType.equals(GrantTypeEnum.AUTHORIZATION_CODE)) {
+
+                if (request.getParameter("code").equals(client.getAuthorizationCode())) {
+                    client.setAuthorizationCode(null);
+                    client.setState(null);
+                    clientDAO.save(client);
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            }
+            return client;
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid client");
         }

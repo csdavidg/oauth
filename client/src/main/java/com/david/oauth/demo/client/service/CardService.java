@@ -2,6 +2,7 @@ package com.david.oauth.demo.client.service;
 
 import com.david.oauth.demo.client.dto.CardEnum;
 import com.david.oauth.demo.client.dto.ViewDTO;
+import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,52 +29,48 @@ public class CardService {
         for (CardEnum cardEnum : cardEnums) {
             switch (cardEnum) {
                 case AUTHORIZATION_CODE:
-                    ViewDTO authorizationCodeCard = ViewDTO.builder()
+                    cards.add(ViewDTO.builder()
                             .cardEnum(CardEnum.AUTHORIZATION_CODE)
                             .cardTitle("Authorization Code")
                             .cardDescription("Click this button to get an authorization code")
-                            .buttonAction(oauthService.getAuthorizationCodeURI())
+                            .buttonAction(oauthService.getAuthorizationCodeURI(ResponseTypeEnum.CODE))
                             .buttonMessage("Authorization Code")
-                            .imagePath("/img/seq-1.png")
+                            .imagePath("/img/seq-1")
                             .imageAlt("Sequence diagram 1")
-                            .build();
-                    cards.add(authorizationCodeCard);
+                            .build());
                     break;
                 case ACCESS_TOKEN:
-                    ViewDTO accessTokenCard = ViewDTO.builder()
+                    cards.add(ViewDTO.builder()
                             .cardEnum(CardEnum.ACCESS_TOKEN)
                             .cardTitle("Access Token")
                             .cardDescription("Click this button to get the access token")
                             .buttonAction("/authorization")
                             .buttonMessage("Access Token")
-                            .imagePath("/img/seq-2.png")
+                            .imagePath("/img/seq-2")
                             .imageAlt("Sequence diagram 2")
-                            .build();
-                    cards.add(accessTokenCard);
+                            .build());
                     break;
                 case REFRESH_TOKEN:
-                    ViewDTO refreshTokenCard = ViewDTO.builder()
+                    cards.add(ViewDTO.builder()
                             .cardEnum(CardEnum.REFRESH_TOKEN)
                             .cardTitle("Refresh Token")
                             .cardDescription("Click this button to get a new access token using refresh token")
                             .buttonAction("/refresh")
                             .buttonMessage("Refresh Token")
-                            .imagePath("/img/seq-3.png")
+                            .imagePath("/img/seq-3")
                             .imageAlt("Sequence diagram 3")
-                            .build();
-                    cards.add(refreshTokenCard);
+                            .build());
                     break;
                 case LIST_EMPLOYEES:
-                    ViewDTO protectedResourceCard = ViewDTO.builder()
+                    cards.add(ViewDTO.builder()
                             .cardEnum(CardEnum.LIST_EMPLOYEES)
                             .cardTitle("Protected Resource")
                             .cardDescription("Click this button to get an employees list from a protected resource")
                             .buttonAction("/protected")
                             .buttonMessage("Employees")
-                            .imagePath("/img/seq-4.png")
+                            .imagePath("/img/seq-4")
                             .imageAlt("Sequence diagram 4")
-                            .build();
-                    cards.add(protectedResourceCard);
+                            .build());
                     break;
                 default:
                     break;

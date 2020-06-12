@@ -47,18 +47,22 @@ public class AuthorizationService {
 
             String refreshToken = jwtTokenUtil.generateRefreshToken();
             keyStoreManager.saveValueIntoKeyStore(client.getClientId().concat(KEY_STORE_ALIAS_REFRESH_TOKEN), refreshToken);
-            return this.createResponseAccessToken(client, refreshToken);
+            return createResponseAccessToken(client, refreshToken);
         } else if (grantType.equals(GrantTypeEnum.REFRESH_TOKEN)) {
 
-            String refreshTokenFromKeyStore = this.keyStoreManager.getValueFromKeyStore(client.getClientId().concat(KEY_STORE_ALIAS_REFRESH_TOKEN));
+            String refreshTokenFromKeyStore = keyStoreManager.getValueFromKeyStore(client.getClientId().concat(KEY_STORE_ALIAS_REFRESH_TOKEN));
             String refreshToken = request.getParameter("refresh_token");
             if (refreshTokenFromKeyStore != null && refreshTokenFromKeyStore.equals(refreshToken)) {
-                this.jwtTokenUtil.validateJwtAccessToken(refreshToken);
-                return this.createResponseAccessToken(client, refreshTokenFromKeyStore);
+                jwtTokenUtil.validateJwtAccessToken(refreshToken);
+                return createResponseAccessToken(client, refreshTokenFromKeyStore);
             }
         }
 
         throw new IllegalArgumentException();
+    }
+
+    public void revokeToken(String alias) {
+        keyStoreManager.deleteValueInKeyStore(alias);
     }
 
     private ResponseToken createResponseAccessToken(Client client, String refreshToken) {

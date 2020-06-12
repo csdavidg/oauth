@@ -72,8 +72,11 @@ public class OauthController {
     public String refreshToken(Model model) {
         try {
             oauthService.getAccessTokenUsingRefresh();
-            model.addAttribute("cards", cards);
+            cards.addAll(cardService.buildListByCards(CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
         } catch (Exception e) {
+            cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE);
+            model.addAttribute("cards", cards);
             model.addAttribute("error", "Unable getting access token");
             return "index";
         }
@@ -86,10 +89,10 @@ public class OauthController {
         if (employeeList != null) {
 
             model.addAttribute("employees", employeeList);
-            model.addAttribute("cards", cards);
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
         } else {
 
-            List<ViewDTO> cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE, CardEnum.ACCESS_TOKEN, CardEnum.REFRESH_TOKEN);
+            cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE, CardEnum.ACCESS_TOKEN, CardEnum.REFRESH_TOKEN);
             model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.REFRESH_TOKEN));
             model.addAttribute("error", "You are not authorized to access this resource");
         }

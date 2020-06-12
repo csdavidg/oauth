@@ -3,6 +3,7 @@ package com.david.oauth.demo.client.service;
 import com.david.oauth.demo.client.config.OauthConfig;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
 import com.david.oauth.demo.oauthcommons.enums.GrantTypeEnum;
+import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
 import com.david.oauth.demo.oauthcommons.managers.KeyStoreManager;
 import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import java.io.IOException;
 
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_AUTHORIZATION_CODE;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_REFRESH_TOKEN;
 import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_STATE;
 
 @Service
@@ -46,9 +48,9 @@ public class OauthService {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    public String getAuthorizationCodeURI() {
+    public String getAuthorizationCodeURI(ResponseTypeEnum responseType) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("response_type", "code");
+        params.add("response_type", responseType.getType());
         params.add("state", createAndSaveRequestState());
         params.add("client_id", oauthConfig.getClient());
         params.add("redirect_uri", oauthConfig.getCallback());
@@ -63,7 +65,7 @@ public class OauthService {
     public ResponseToken getAccessToken() {
         String authorizationCode = keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_AUTHORIZATION_CODE);
         if (authorizationCode == null) {
-            throw new IllegalArgumentException("Invalid Refresh Token");
+            throw new IllegalArgumentException("Invalid Authorization Code");
         }
         MultiValueMap<String, String> requestBody = createAccessTokenRequestBody(GrantTypeEnum.AUTHORIZATION_CODE);
         requestBody.add("code", authorizationCode);
@@ -71,7 +73,7 @@ public class OauthService {
     }
 
     public ResponseToken getAccessTokenUsingRefresh() throws IOException {
-        String valueFromKey = keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN);
+        String valueFromKey = keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_REFRESH_TOKEN);
         if (valueFromKey == null) {
             throw new IllegalArgumentException("Invalid Refresh Token");
         }
@@ -116,7 +118,7 @@ public class OauthService {
 
     private ResponseToken getTokenFromAuthorizationServer(MultiValueMap<String, String> body) {
 
-        ResponseToken responseToken = new ResponseToken();
+        ResponseToken responseToken;
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -130,8 +132,12 @@ public class OauthService {
             String jsonToken = new ObjectMapper().writeValueAsString(responseToken);
             keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN, jsonToken);
 
+            responseToken.setAccessToken(null);
+            jsonToken = new ObjectMapper().writeValueAsString(responseToken);
+            keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_REFRESH_TOKEN, jsonToken);
+
         } catch (RestClientResponseException | IllegalArgumentException | IOException e) {
-            responseToken.setMessage(e.getMessage());
+            throw new IllegalArgumentException("Error getting token " + e.getMessage());
         }
         return responseToken;
     }

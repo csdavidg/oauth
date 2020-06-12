@@ -28,14 +28,11 @@ public class ViewDTO {
 
         ViewDTO viewDTO = (ViewDTO) o;
 
-        if (cardEnum != viewDTO.cardEnum) return false;
-        return cardTitle != null ? cardTitle.equals(viewDTO.cardTitle) : viewDTO.cardTitle == null;
+        return cardEnum.equals(viewDTO.cardEnum);
     }
 
     @Override
     public int hashCode() {
-        int result = cardEnum.getId();
-        result = 31 * result + (cardTitle != null ? cardTitle.hashCode() : 0);
-        return result;
+        return cardEnum.hashCode();
     }
 }
