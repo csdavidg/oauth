@@ -47,10 +47,7 @@
         </div>
 
         <div class="col-sm-8">
-            <img th:src="@{${card.imagePath} + '-error.png'}" class="img-fluid" th:alt="${card.imageAlt}"
-                 th:if="${error != null}">
-            <img th:src="@{${card.imagePath} + '.png'}" class="img-fluid" th:alt="${card.imageAlt}"
-                 th:if="${error == null}">
+            <img th:src="@{${card.imagePath} + '.png'}" class="img-fluid" th:alt="${card.imageAlt}">
         </div>
 
     </div>

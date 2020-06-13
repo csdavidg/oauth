@@ -2,7 +2,6 @@ package com.david.oauth.demo.client.service;
 
 import com.david.oauth.demo.oauthcommons.entity.Employee;
 import com.david.oauth.demo.oauthcommons.entity.ResponseToken;
-import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +25,10 @@ public class EmployeeService {
     public String employeesEndpoint;
 
     private final OauthService oauthService;
-    private final JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    public EmployeeService(OauthService oauthService, JwtTokenUtil jwtTokenUtil) {
+    public EmployeeService(OauthService oauthService) {
         this.oauthService = oauthService;
-        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     public List<Employee> getEmployeesFromAPI() {
