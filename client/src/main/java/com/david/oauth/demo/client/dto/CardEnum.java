@@ -6,9 +6,10 @@ import lombok.Getter;
 public enum CardEnum {
 
     AUTHORIZATION_CODE(1),
-    ACCESS_TOKEN(2),
-    REFRESH_TOKEN(3),
-    LIST_EMPLOYEES(4);
+    CREDENTIALS_ACCESS_TOKEN(2),
+    ACCESS_TOKEN(3),
+    REFRESH_TOKEN(4),
+    LIST_EMPLOYEES(5);
 
     private int id;
 

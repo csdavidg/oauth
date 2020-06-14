@@ -56,7 +56,11 @@ public class AuthorizationService {
                 jwtTokenUtil.validateJwtAccessToken(refreshToken);
                 return createResponseAccessToken(client, refreshTokenFromKeyStore);
             }
+        } else if (grantType.equals(GrantTypeEnum.CLIENT_CREDENTIALS)) {
+
+            return createResponseAccessToken(client, null);
         }
+
 
         throw new IllegalArgumentException();
     }

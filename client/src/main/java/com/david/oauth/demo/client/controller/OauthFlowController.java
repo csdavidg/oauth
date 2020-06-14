@@ -11,12 +11,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 @Controller
-public class OauthController {
+@RequestMapping("/code")
+public class OauthFlowController {
+
+    private final String AUTHORIZATION_CODE_PAGE = "authorization-code";
+    private final String PATH = "/code";
 
     private final OauthService oauthService;
     private final EmployeeService employeeService;
@@ -24,7 +29,7 @@ public class OauthController {
     private List<ViewDTO> cards;
 
     @Autowired
-    public OauthController(OauthService oauthService, EmployeeService employeeService, CardService cardService) {
+    public OauthFlowController(OauthService oauthService, EmployeeService employeeService, CardService cardService) {
         this.oauthService = oauthService;
         this.employeeService = employeeService;
         this.cardService = cardService;
@@ -35,10 +40,10 @@ public class OauthController {
         try {
             cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE);
             model.addAttribute("cards", cards);
-            return "index";
+            return AUTHORIZATION_CODE_PAGE;
         } catch (Exception e) {
             model.addAttribute("error", "Unable to get the authorization code");
-            return "index";
+            return AUTHORIZATION_CODE_PAGE;
         }
     }
 
@@ -47,25 +52,25 @@ public class OauthController {
         try {
             oauthService.validateAndSaveAuthorizationCode(code, state);
             this.cards.addAll(cardService.buildListByCards(CardEnum.ACCESS_TOKEN));
-            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.ACCESS_TOKEN));
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.ACCESS_TOKEN));
         } catch (Exception e) {
             model.addAttribute("error", "Error saving the authorization code");
-            return "index";
+            return AUTHORIZATION_CODE_PAGE;
         }
-        return "index";
+        return AUTHORIZATION_CODE_PAGE;
     }
 
     @GetMapping("/authorization")
     public String accessToken(Model model) {
         try {
-            oauthService.getAccessToken();
+            oauthService.getAccessTokenUsingCode();
             cards.addAll(cardService.buildListByCards(CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
-            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
         } catch (Exception e) {
             model.addAttribute("error", "Unable getting access token");
-            return "index";
+            return AUTHORIZATION_CODE_PAGE;
         }
-        return "index";
+        return AUTHORIZATION_CODE_PAGE;
     }
 
     @GetMapping("/refresh")
@@ -73,14 +78,14 @@ public class OauthController {
         try {
             oauthService.getAccessTokenUsingRefresh();
             cards.addAll(cardService.buildListByCards(CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
-            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
         } catch (Exception e) {
             cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE);
             model.addAttribute("cards", cards);
             model.addAttribute("error", "Unable getting access token");
-            return "index";
+            return AUTHORIZATION_CODE_PAGE;
         }
-        return "index";
+        return AUTHORIZATION_CODE_PAGE;
     }
 
     @GetMapping("/protected")
@@ -89,21 +94,21 @@ public class OauthController {
         if (employeeList != null) {
 
             model.addAttribute("employees", employeeList);
-            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
         } else {
 
             cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE, CardEnum.ACCESS_TOKEN, CardEnum.REFRESH_TOKEN);
-            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, CardEnum.REFRESH_TOKEN));
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.REFRESH_TOKEN));
             model.addAttribute("error", "You are not authorized to access this resource");
         }
-        return "index";
+        return AUTHORIZATION_CODE_PAGE;
     }
 
     @DeleteMapping("/revoke")
     public String revokeAccessToken(Model model) {
         oauthService.revokeAccessToken();
         model.addAttribute("cards", cards);
-        return "index";
+        return AUTHORIZATION_CODE_PAGE;
     }
 
 

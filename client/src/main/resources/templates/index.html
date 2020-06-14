@@ -14,64 +14,25 @@
 <body>
 <div class="container-fluid">
     <div class="row d-flex align-items-center justify-content-center mt-2 bg-light">
-        <h1>Oauth Authorization Grant Flow - Demo</h1>
+        <h1>Oauth - Demo</h1>
     </div>
 
-    <div class="row d-flex align-items-center justify-content-center mt-1" th:if="${error != null}">
-        <div class="alert alert-danger" role="alert">
-            <h3 th:text="${error}"></h3>
-        </div>
-    </div>
+    <div class="row d-flex align-items-center justify-content-center">
 
-    <div class="row" th:each="card : ${cards}">
-
-        <div class="col-sm-4 d-flex align-items-center justify-content-center">
-            <div class="card text-center shadow p-3 mb-5 bg-white rounded mt-3 w-75">
-                <div class="card-header">
-                    <h5 class="card-title" th:text="${card.cardTitle}"></h5>
-                </div>
-                <div class="card-body">
-                    <p class="card-text" th:text="${card.cardDescription}"></p>
-
-                    <div th:if="${card.cardError != null}">
-                        <div class="alert alert-danger" role="alert">
-                            <h3 th:text="${card.cardError}"></h3>
-                        </div>
+        <div class="card text-center">
+            <img src="/img/oauth2-logo.jpg" class="card-img-top" alt="Oauth 2">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <a href="/code/" class="btn btn-dark btn-lg">Authorization Code Flow</a>
                     </div>
-
-                    <a th:href="@{${card.buttonAction}}"
-                       class="btn btn-dark btn-lg" role="button"
-                       th:classappend="${card.buttonClass}" th:text="${card.buttonMessage}"></a>
+                    <div class="col-lg-6">
+                        <a href="/credentials/" class="btn btn-dark btn-lg">Client Credentials Flow</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-sm-8">
-            <img th:src="@{${card.imagePath} + '.png'}" class="img-fluid" th:alt="${card.imageAlt}">
-        </div>
-
-    </div>
-
-    <div class="row d-flex align-items-center justify-content-center mt-2" th:if="${employees != null}">
-        <div class="col-11">
-            <h1 th:text="Employees"></h1>
-            <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="employee : ${employees}">
-                    <td th:text="${employee.firstName}"></td>
-                    <td th:text="${employee.lastName}"></td>
-                    <td th:text="${employee.email}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 
 </div>

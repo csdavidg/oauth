@@ -61,8 +61,7 @@ public class OauthService {
         return uriBuilder.toUriString();
     }
 
-
-    public ResponseToken getAccessToken() {
+    public ResponseToken getAccessTokenUsingCode() {
         String authorizationCode = keyStoreManager.getValueFromKeyStore(KEY_STORE_ALIAS_AUTHORIZATION_CODE);
         if (authorizationCode == null) {
             throw new IllegalArgumentException("Invalid Authorization Code");
@@ -81,6 +80,11 @@ public class OauthService {
 
         MultiValueMap<String, String> requestBody = createAccessTokenRequestBody(GrantTypeEnum.REFRESH_TOKEN);
         requestBody.add("refresh_token", responseToken.getRefreshToken());
+        return getTokenFromAuthorizationServer(requestBody);
+    }
+
+    public ResponseToken getAccessTokenUsingCredentials() {
+        MultiValueMap<String, String> requestBody = createAccessTokenRequestBody(GrantTypeEnum.CLIENT_CREDENTIALS);
         return getTokenFromAuthorizationServer(requestBody);
     }
 
@@ -132,9 +136,11 @@ public class OauthService {
             String jsonToken = new ObjectMapper().writeValueAsString(responseToken);
             keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_ACCESS_TOKEN, jsonToken);
 
-            responseToken.setAccessToken(null);
-            jsonToken = new ObjectMapper().writeValueAsString(responseToken);
-            keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_REFRESH_TOKEN, jsonToken);
+            if (responseToken != null && responseToken.getRefreshToken() != null) {
+                responseToken.setAccessToken(null);
+                jsonToken = new ObjectMapper().writeValueAsString(responseToken);
+                keyStoreManager.saveValueIntoKeyStore(KEY_STORE_ALIAS_REFRESH_TOKEN, jsonToken);
+            }
 
         } catch (RestClientResponseException | IllegalArgumentException | IOException e) {
             throw new IllegalArgumentException("Error getting token " + e.getMessage());

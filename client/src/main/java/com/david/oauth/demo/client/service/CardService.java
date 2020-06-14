@@ -36,7 +36,7 @@ public class CardService {
                             .buttonAction(oauthService.getAuthorizationCodeURI(ResponseTypeEnum.CODE))
                             .buttonMessage("Authorization Code")
                             .imagePath("/img/seq-1")
-                            .imageAlt("Sequence diagram 1")
+                            .imageAlt("Sequence diagram authorization code")
                             .build());
                     break;
                 case ACCESS_TOKEN:
@@ -47,7 +47,18 @@ public class CardService {
                             .buttonAction("/authorization")
                             .buttonMessage("Access Token")
                             .imagePath("/img/seq-2")
-                            .imageAlt("Sequence diagram 2")
+                            .imageAlt("Sequence diagram access token")
+                            .build());
+                    break;
+                case CREDENTIALS_ACCESS_TOKEN:
+                    cards.add(ViewDTO.builder()
+                            .cardEnum(CardEnum.CREDENTIALS_ACCESS_TOKEN)
+                            .cardTitle("Access Token")
+                            .cardDescription("Click this button to get the access token")
+                            .buttonAction("/authorization")
+                            .buttonMessage("Access Token")
+                            .imagePath("/img/seq-credentials-1")
+                            .imageAlt("Sequence diagram access token with credentials")
                             .build());
                     break;
                 case REFRESH_TOKEN:
@@ -58,7 +69,7 @@ public class CardService {
                             .buttonAction("/refresh")
                             .buttonMessage("Refresh Token")
                             .imagePath("/img/seq-3")
-                            .imageAlt("Sequence diagram 3")
+                            .imageAlt("Sequence diagram refresh token")
                             .build());
                     break;
                 case LIST_EMPLOYEES:
@@ -69,7 +80,7 @@ public class CardService {
                             .buttonAction("/protected")
                             .buttonMessage("Employees")
                             .imagePath("/img/seq-4")
-                            .imageAlt("Sequence diagram 4")
+                            .imageAlt("Sequence diagram list employees")
                             .build());
                     break;
                 default:
@@ -80,9 +91,10 @@ public class CardService {
         return cards.stream().sorted(Comparator.comparing(ViewDTO::getCardEnum)).collect(Collectors.toList());
     }
 
-    public List<ViewDTO> disableUnUsedCardsAndRemoveDuplicate(List<ViewDTO> cards, CardEnum... cardEnums) {
+    public List<ViewDTO> disableUnUsedCardsAndRemoveDuplicate(List<ViewDTO> cards, String path, CardEnum... cardEnums) {
         cards.stream().filter(a -> !Arrays.asList(cardEnums).contains(a.getCardEnum()))
                 .forEach(b -> b.setButtonClass("disabled"));
+        cards.stream().filter(c -> !c.getButtonAction().contains(path)).forEach(c -> c.setButtonAction(path.concat(c.getButtonAction())));
         return cards.stream().distinct().collect(Collectors.toList());
     }
 

@@ -79,12 +79,14 @@ public class ClientService implements ClientManagement {
 
             String credentials = headers.getFirst(HttpHeaders.AUTHORIZATION).replace("Basic", "").trim();
             String[] credentialsDecoded = new String(Base64.getDecoder().decode(credentials)).split(":");
-            Client client = clientDAO.findByClientIdAndClientSecretAndRedirectUri(credentialsDecoded[0], credentialsDecoded[1], request.getParameter("redirect_uri"))
+            Client client = clientDAO.findByClientIdAndClientSecret(credentialsDecoded[0], credentialsDecoded[1])
                     .orElseThrow(IllegalArgumentException::new);
 
             if (grantType.equals(GrantTypeEnum.AUTHORIZATION_CODE)) {
 
-                if (request.getParameter("code").equals(client.getAuthorizationCode())) {
+                if (request.getParameter("code").equals(client.getAuthorizationCode())
+                        && request.getParameter("redirect_uri").equals(client.getRedirectUri())) {
+
                     client.setAuthorizationCode(null);
                     client.setState(null);
                     clientDAO.save(client);
