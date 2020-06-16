@@ -4,16 +4,24 @@ import com.david.oauth.demo.authorizationserver.dao.ClientDAO;
 import com.david.oauth.demo.oauthcommons.entity.Client;
 import com.david.oauth.demo.oauthcommons.enums.GrantTypeEnum;
 import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
+import com.david.oauth.demo.oauthcommons.managers.KeyStoreManager;
+import com.david.oauth.demo.oauthcommons.util.PKCEUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.david.oauth.demo.oauthcommons.constants.Constants.ALGORITHM;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.CODE_CHALLENGE;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.CODE_VERIFIER;
 import static com.david.oauth.demo.oauthcommons.constants.Constants.GRANT_TYPE;
 import static java.util.stream.Collectors.toMap;
 
@@ -21,10 +29,12 @@ import static java.util.stream.Collectors.toMap;
 public class ClientService implements ClientManagement {
 
     private final ClientDAO clientDAO;
+    private final KeyStoreManager keyStoreManager;
 
     @Autowired
-    public ClientService(ClientDAO clientDAO) {
+    public ClientService(ClientDAO clientDAO, KeyStoreManager keyStoreManager) {
         this.clientDAO = clientDAO;
+        this.keyStoreManager = keyStoreManager;
     }
 
     @Override
@@ -63,6 +73,7 @@ public class ClientService implements ClientManagement {
         }
     }
 
+    @Override
     public Client validateOauthClient(HttpServletRequest request) throws IllegalArgumentException {
         try {
 
@@ -83,7 +94,7 @@ public class ClientService implements ClientManagement {
                     .orElseThrow(IllegalArgumentException::new);
 
             if (grantType.equals(GrantTypeEnum.AUTHORIZATION_CODE)) {
-
+                recomputeAndValidateCodeChallenge(request.getParameter(CODE_VERIFIER));
                 if (request.getParameter("code").equals(client.getAuthorizationCode())
                         && request.getParameter("redirect_uri").equals(client.getRedirectUri())) {
 
@@ -97,6 +108,27 @@ public class ClientService implements ClientManagement {
             return client;
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid client");
+        }
+    }
+
+    @Override
+    public void saveCodeChallengeAndAlgorithm(String codeChallenge, String algorithm) {
+        keyStoreManager.saveValueIntoKeyStore(CODE_CHALLENGE, new String(Base64.getDecoder().decode(codeChallenge.getBytes())));
+        keyStoreManager.saveValueIntoKeyStore(ALGORITHM, algorithm);
+    }
+
+    @Override
+    public void recomputeAndValidateCodeChallenge(String codeVerifier) {
+        try {
+            String algorithm = keyStoreManager.getValueFromKeyStore(ALGORITHM);
+            String codeChallenge = keyStoreManager.getValueFromKeyStore(CODE_CHALLENGE);
+            PKCEUtil pkceUtil = new PKCEUtil(algorithm);
+            if (!pkceUtil.getCodeChallenge(codeVerifier).equals(codeChallenge)) {
+                throw new IllegalArgumentException("Invalid code challenge");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 }

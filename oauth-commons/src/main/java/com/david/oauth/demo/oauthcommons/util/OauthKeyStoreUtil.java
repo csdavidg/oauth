@@ -1,5 +1,7 @@
 package com.david.oauth.demo.oauthcommons.util;
 
+import org.apache.tomcat.util.security.Escape;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.FileInputStream;
@@ -80,10 +82,10 @@ public class OauthKeyStoreUtil {
             SecretKey mySecretKey = new SecretKeySpec(entry.getBytes(), KEY_STORE_ALGORITHM);
             KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(mySecretKey);
             this.keyStore.setEntry(alias, skEntry, this.protectionParameter);
+            updateAndCloseKeyStore();
         } catch (KeyStoreException e) {
             e.printStackTrace();
         }
-        updateAndCloseKeyStore();
     }
 
     public String getValueFromKeyStore(String alias) {

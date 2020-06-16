@@ -20,8 +20,15 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
-import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_REFRESH_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.ACCESS_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.ALGORITHM;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.CLIENT_ID;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.CODE_CHALLENGE;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.CODE_VERIFIER;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.REDIRECT_URI;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.REFRESH_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.RESPONSE_TYPE;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.STATE;
 
 @RestController
 @RequestMapping("/oauth")
@@ -37,22 +44,25 @@ public class OauthController {
         this.authorizationService = authorizationService;
     }
 
-    @GetMapping("health")
+    @GetMapping("/health")
     public ResponseEntity<String> health() {
         return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
 
-    @GetMapping("authorize")
-    public RedirectView getAuthorizationCode(@RequestParam("response_type") String responseType,
-                                             @RequestParam("state") String state,
-                                             @RequestParam("client_id") String clientId,
-                                             @RequestParam("redirect_uri") String redirectUri) {
+    @GetMapping("/authorize")
+    public RedirectView getAuthorizationCode(@RequestParam(RESPONSE_TYPE) String responseType,
+                                             @RequestParam(STATE) String state,
+                                             @RequestParam(CLIENT_ID) String clientId,
+                                             @RequestParam(REDIRECT_URI) String redirectUri,
+                                             @RequestParam(CODE_CHALLENGE) String codeChallenge,
+                                             @RequestParam(ALGORITHM) String algorithm) {
 
         RedirectView redirect = new RedirectView(redirectUri);
         try {
-            Client client = this.clientService.validateOauthClient(clientId, redirectUri, responseType);
+            Client client = clientService.validateOauthClient(clientId, redirectUri, responseType);
+            clientService.saveCodeChallengeAndAlgorithm(codeChallenge, algorithm);
             Map<String, String> attributesMap = new HashMap<>();
-            attributesMap.put(ResponseTypeEnum.CODE.getType(), this.authorizationService.generateAuthorizationCodeForClient(client, state));
+            attributesMap.put(ResponseTypeEnum.CODE.getType(), authorizationService.generateAuthorizationCodeForClient(client, state));
             attributesMap.put("state", state);
             redirect.setStatusCode(HttpStatus.FOUND);
             redirect.setAttributesMap(attributesMap);
@@ -62,7 +72,7 @@ public class OauthController {
         return redirect;
     }
 
-    @PostMapping("token")
+    @PostMapping("/token")
     public ResponseEntity<?> getToken(HttpServletRequest request) {
         try {
             Client client = clientService.validateOauthClient(request);
@@ -73,16 +83,25 @@ public class OauthController {
         }
     }
 
-    @DeleteMapping("revoke/access/token")
+    @DeleteMapping("/revoke/access/token")
     public ResponseEntity<?> deleteAccessToken(@RequestParam("client_id") String clientId) {
-        authorizationService.revokeToken(clientId.concat(KEY_STORE_ALIAS_ACCESS_TOKEN));
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        try {
+            authorizationService.revokeToken(clientId.concat(ACCESS_TOKEN));
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
-    @DeleteMapping("revoke/refresh/token")
+    @DeleteMapping("/revoke/refresh/token")
     public ResponseEntity<?> deleteRefreshToken(@RequestParam("client_id") String clientId) {
-        authorizationService.revokeToken(clientId.concat(KEY_STORE_ALIAS_REFRESH_TOKEN));
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        try {
+            authorizationService.revokeToken(clientId.concat(REFRESH_TOKEN));
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

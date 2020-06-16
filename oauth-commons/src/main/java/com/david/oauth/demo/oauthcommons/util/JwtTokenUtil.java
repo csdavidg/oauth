@@ -16,7 +16,7 @@ public class JwtTokenUtil {
 
     private String jwtKey;
 
-    private String generateRandomString() {
+    public String generateRandomString() {
         int leftLimit = 48;
         int rightLimit = 122;
         int targetStringLength = 10;

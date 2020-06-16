@@ -25,7 +25,7 @@ public class CommonsConfig {
 
     @Bean
     public KeyStoreManager tokenService() {
-        return new KeyStoreManager(jwtTokenUtil(), keyStoreName, keyStorePassword);
+        return new KeyStoreManager(keyStoreName, keyStorePassword);
     }
 
 }

@@ -1,16 +1,13 @@
 package com.david.oauth.demo.oauthcommons.managers;
 
-import com.david.oauth.demo.oauthcommons.util.JwtTokenUtil;
 import com.david.oauth.demo.oauthcommons.util.OauthKeyStoreUtil;
 
 public class KeyStoreManager {
 
     public final String keyStorePassword;
     public final String keyStoreName;
-    private final JwtTokenUtil jwtTokenUtil;
 
-    public KeyStoreManager(JwtTokenUtil jwtTokenUtil, String keyStoreName, String keyStorePassword) {
-        this.jwtTokenUtil = jwtTokenUtil;
+    public KeyStoreManager(String keyStoreName, String keyStorePassword) {
         this.keyStoreName = keyStoreName;
         this.keyStorePassword = keyStorePassword;
     }

@@ -2,8 +2,6 @@ package com.david.oauth.demo.client.service;
 
 import com.david.oauth.demo.client.dto.CardEnum;
 import com.david.oauth.demo.client.dto.ViewDTO;
-import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,13 +12,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class CardService {
-
-    private final OauthService oauthService;
-
-    @Autowired
-    public CardService(OauthService oauthService) {
-        this.oauthService = oauthService;
-    }
 
     public List<ViewDTO> buildListByCards(CardEnum... cardEnums) {
 
@@ -33,7 +24,7 @@ public class CardService {
                             .cardEnum(CardEnum.AUTHORIZATION_CODE)
                             .cardTitle("Authorization Code")
                             .cardDescription("Click this button to get an authorization code")
-                            .buttonAction(oauthService.getAuthorizationCodeURI(ResponseTypeEnum.CODE))
+                            .buttonAction("/authorization")
                             .buttonMessage("Authorization Code")
                             .imagePath("/img/seq-1")
                             .imageAlt("Sequence diagram authorization code")
@@ -44,7 +35,7 @@ public class CardService {
                             .cardEnum(CardEnum.ACCESS_TOKEN)
                             .cardTitle("Access Token")
                             .cardDescription("Click this button to get the access token")
-                            .buttonAction("/authorization")
+                            .buttonAction("/token")
                             .buttonMessage("Access Token")
                             .imagePath("/img/seq-2")
                             .imageAlt("Sequence diagram access token")
@@ -94,7 +85,7 @@ public class CardService {
     public List<ViewDTO> disableUnUsedCardsAndRemoveDuplicate(List<ViewDTO> cards, String path, CardEnum... cardEnums) {
         cards.stream().filter(a -> !Arrays.asList(cardEnums).contains(a.getCardEnum()))
                 .forEach(b -> b.setButtonClass("disabled"));
-        cards.stream().filter(c -> !c.getButtonAction().contains(path)).forEach(c -> c.setButtonAction(path.concat(c.getButtonAction())));
+        cards.stream().filter(c -> !c.getButtonAction().startsWith(path)).forEach(c -> c.setButtonAction(path.concat(c.getButtonAction())));
         return cards.stream().distinct().collect(Collectors.toList());
     }
 

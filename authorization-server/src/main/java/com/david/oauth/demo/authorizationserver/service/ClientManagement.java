@@ -20,4 +20,8 @@ public interface ClientManagement {
 
     Client validateOauthClient(HttpServletRequest request) throws IllegalArgumentException;
 
+    void saveCodeChallengeAndAlgorithm(String codeChallenge, String algorithm);
+
+    void recomputeAndValidateCodeChallenge(String codeVerifier);
+
 }

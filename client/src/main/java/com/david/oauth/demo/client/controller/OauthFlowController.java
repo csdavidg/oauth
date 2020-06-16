@@ -6,6 +6,7 @@ import com.david.oauth.demo.client.service.CardService;
 import com.david.oauth.demo.client.service.EmployeeService;
 import com.david.oauth.demo.client.service.OauthService;
 import com.david.oauth.demo.oauthcommons.entity.Employee;
+import com.david.oauth.demo.oauthcommons.enums.ResponseTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -39,13 +41,24 @@ public class OauthFlowController {
     public String index(Model model) {
         try {
             cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE);
-            model.addAttribute("cards", cards);
-            return AUTHORIZATION_CODE_PAGE;
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.AUTHORIZATION_CODE));
+        } catch (Exception e) {
+            model.addAttribute("error", "Error loading authorization code flow page");
+        }
+        return AUTHORIZATION_CODE_PAGE;
+    }
+
+    @GetMapping("/authorization")
+    public RedirectView authorizationCode(Model model) {
+        try {
+            String authorizationCodeUri = oauthService.getAuthorizationCodeURI(ResponseTypeEnum.CODE);
+            return new RedirectView(authorizationCodeUri);
         } catch (Exception e) {
             model.addAttribute("error", "Unable to get the authorization code");
-            return AUTHORIZATION_CODE_PAGE;
+            return new RedirectView(AUTHORIZATION_CODE_PAGE);
         }
     }
+
 
     @GetMapping("/callback")
     public String callback(@RequestParam String code, @RequestParam String state, Model model) {
@@ -54,21 +67,24 @@ public class OauthFlowController {
             this.cards.addAll(cardService.buildListByCards(CardEnum.ACCESS_TOKEN));
             model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.ACCESS_TOKEN));
         } catch (Exception e) {
+            cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE);
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.AUTHORIZATION_CODE));
             model.addAttribute("error", "Error saving the authorization code");
-            return AUTHORIZATION_CODE_PAGE;
         }
         return AUTHORIZATION_CODE_PAGE;
     }
 
-    @GetMapping("/authorization")
+    @GetMapping("/token")
     public String accessToken(Model model) {
+
         try {
             oauthService.getAccessTokenUsingCode();
             cards.addAll(cardService.buildListByCards(CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
             model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
         } catch (Exception e) {
+            cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE);
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.AUTHORIZATION_CODE));
             model.addAttribute("error", "Unable getting access token");
-            return AUTHORIZATION_CODE_PAGE;
         }
         return AUTHORIZATION_CODE_PAGE;
     }
@@ -81,9 +97,8 @@ public class OauthFlowController {
             model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.LIST_EMPLOYEES, CardEnum.REFRESH_TOKEN));
         } catch (Exception e) {
             cards = cardService.buildListByCards(CardEnum.AUTHORIZATION_CODE);
-            model.addAttribute("cards", cards);
+            model.addAttribute("cards", cardService.disableUnUsedCardsAndRemoveDuplicate(cards, PATH, CardEnum.AUTHORIZATION_CODE));
             model.addAttribute("error", "Unable getting access token");
-            return AUTHORIZATION_CODE_PAGE;
         }
         return AUTHORIZATION_CODE_PAGE;
     }

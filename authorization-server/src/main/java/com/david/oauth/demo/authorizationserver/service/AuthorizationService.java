@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 
 import static com.david.oauth.demo.oauthcommons.constants.Constants.GRANT_TYPE;
-import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_ACCESS_TOKEN;
-import static com.david.oauth.demo.oauthcommons.constants.Constants.KEY_STORE_ALIAS_REFRESH_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.ACCESS_TOKEN;
+import static com.david.oauth.demo.oauthcommons.constants.Constants.REFRESH_TOKEN;
 import static com.david.oauth.demo.oauthcommons.constants.Constants.TOKEN_TYPE;
 
 @Service
@@ -46,11 +46,11 @@ public class AuthorizationService {
         if (grantType.equals(GrantTypeEnum.AUTHORIZATION_CODE)) {
 
             String refreshToken = jwtTokenUtil.generateRefreshToken();
-            keyStoreManager.saveValueIntoKeyStore(client.getClientId().concat(KEY_STORE_ALIAS_REFRESH_TOKEN), refreshToken);
+            keyStoreManager.saveValueIntoKeyStore(client.getClientId().concat(REFRESH_TOKEN), refreshToken);
             return createResponseAccessToken(client, refreshToken);
         } else if (grantType.equals(GrantTypeEnum.REFRESH_TOKEN)) {
 
-            String refreshTokenFromKeyStore = keyStoreManager.getValueFromKeyStore(client.getClientId().concat(KEY_STORE_ALIAS_REFRESH_TOKEN));
+            String refreshTokenFromKeyStore = keyStoreManager.getValueFromKeyStore(client.getClientId().concat(REFRESH_TOKEN));
             String refreshToken = request.getParameter("refresh_token");
             if (refreshTokenFromKeyStore != null && refreshTokenFromKeyStore.equals(refreshToken)) {
                 jwtTokenUtil.validateJwtAccessToken(refreshToken);
@@ -71,7 +71,7 @@ public class AuthorizationService {
 
     private ResponseToken createResponseAccessToken(Client client, String refreshToken) {
         String accessToken = jwtTokenUtil.generateAccessToken(client);
-        keyStoreManager.saveValueIntoKeyStore(client.getClientId().concat(KEY_STORE_ALIAS_ACCESS_TOKEN), accessToken);
+        keyStoreManager.saveValueIntoKeyStore(client.getClientId().concat(ACCESS_TOKEN), accessToken);
         return ResponseToken.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
