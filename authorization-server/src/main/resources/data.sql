@@ -10,5 +10,5 @@ CREATE TABLE client (
 );
 
 INSERT INTO client (client_id, client_secret, redirect_uri) VALUES
-    ('client-1-2020', 'client1', 'http://localhost:8080/code/callback'),
-    ('client-2-2021', 'client2', 'http://localhost:8080/credentials/callback');
+    ('client-1-2020', 'client1', 'http://oauth.demo.com/code/callback'),
+    ('client-2-2021', 'client2', 'http://oauth.demo.com/credentials/callback');

@@ -10,9 +10,13 @@
     </parent>
     <groupId>com.david.oauth.demo</groupId>
     <artifactId>protected-resource</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>protected-resource</name>
     <description>Demo project for Spring Boot</description>
+
+    <properties>
+        <dockerfile-maven-version>1.4.13</dockerfile-maven-version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -78,6 +82,27 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>${dockerfile-maven-version}</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <repository>csdavidg/oauth-protected-resource</repository>
+                    <tag>${project.version}</tag>
+                    <buildArgs>
+                        <JAR_FILE>/target/${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,0 +1,125 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: oauth-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: oauth-pv
+spec:
+    storageClassName: oauth-storage
+    capacity: 
+        storage: 3Gi
+    accessModes:
+    -   ReadWriteOnce
+    -   ReadOnlyMany
+    persistentVolumeReclaimPolicy: Recycle
+    hostPath:
+        path: /tmp/oauth
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: oauth-pvc
+spec:
+    storageClassName: oauth-storage
+    resources:
+        requests:
+            storage: 2Gi
+    accessModes:
+    -   ReadWriteOnce
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+    name: oauth-rc
+spec:
+    replicas: 1
+    selector:
+        app: oauth
+    template:
+        metadata:
+            labels:
+                app: oauth
+        spec:
+            containers:
+            -   image: csdavidg/oauth-client:1.0.0
+                name: client
+                ports:
+                -   name: client-port
+                    containerPort: 8080
+                    protocol: TCP
+                volumeMounts:
+                -   name: oauth-data
+                    mountPath: /tmp/oauth/client
+            -   image: csdavidg/oauth-authorization-server:1.0.0
+                name: authorization-server
+                ports:
+                -   name: as-port
+                    containerPort: 8081
+                    protocol: TCP
+                volumeMounts:
+                -   name: oauth-data
+                    mountPath: /tmp/oauth/authorization-server
+            -   image: csdavidg/oauth-protected-resource:1.0.0
+                name: protected-resource
+                ports:
+                -   name: pr-port
+                    containerPort: 8082
+                    protocol: TCP
+                volumeMounts:
+                -   name: oauth-data
+                    mountPath: /tmp/oauth/protected-resource
+            volumes:
+            -   name: oauth-data
+                persistentVolumeClaim:
+                    claimName: oauth-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: oauth-service
+spec:
+    type: NodePort
+    ports:
+    -   name: client
+        port: 8080
+        targetPort: client-port
+        nodePort: 30080
+    -   name: as
+        port: 8081
+        targetPort: as-port
+        nodePort: 30081
+    selector:
+        app: oauth
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: oauth
+spec:
+    rules:
+    -   host: oauth.demo.com
+        http:
+            paths:
+            -   path: /
+                backend:
+                    serviceName: oauth-service
+                    servicePort: 8080
+            -   path: /oauth
+                backend:
+                    serviceName: oauth-service
+                    servicePort: 8081

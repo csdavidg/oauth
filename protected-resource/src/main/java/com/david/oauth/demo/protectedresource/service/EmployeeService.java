@@ -5,35 +5,34 @@ import com.david.oauth.demo.protectedresource.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
 public class EmployeeService implements EmployeeInterface {
 
-    private EmployeeDAO employeeDAO;
+    private final EmployeeDAO employeeDAO;
 
     @Autowired
     public EmployeeService(EmployeeDAO employeeDAO) {
         this.employeeDAO = employeeDAO;
     }
 
-    @Transactional
+    @Override
     public List<Employee> findAll() {
-        return (List<Employee>) employeeDAO.findAll();
+        return employeeDAO.findAll();
     }
 
-    @Transactional
+    @Override
     public Employee save(Employee employee) {
         return employeeDAO.save(employee);
     }
 
-    @Transactional
+    @Override
     public Employee findById(Long id) {
         return employeeDAO.findById(id).orElse(null);
     }
 
-    @Transactional
+    @Override
     public void deleteById(Long id) {
         employeeDAO.deleteById(id);
     }

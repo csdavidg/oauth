@@ -1,7 +1,7 @@
 oauth:
   key-store:
     password: "as1keystore"
-    name: "askeystore"
+    name: "/tmp/askeystore"
   clients:
     client-1-2020: client1
     client-2-2021: client2
@@ -11,3 +11,10 @@ server:
 
 jwt:
   secret: jwttokensecret
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: "*"
